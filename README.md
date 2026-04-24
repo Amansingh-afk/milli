@@ -19,17 +19,17 @@ Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal 
 - [Install](#install)
 - [Quick start](#quick-start)
 - [Commands](#commands)
-  - `[milli image](#milli-image)`
-  - `[milli play](#milli-play)`
-  - `[milli convert](#milli-convert)`
-  - `[milli export](#milli-export)`
+  - [milli image](#milli-image)
+  - [milli play](#milli-play)
+  - [milli convert](#milli-convert)
+  - [milli export](#milli-export)
 - [Render modes](#render-modes)
 - [Export targets](#export-targets)
   - [Go / Bubbletea](#go--bubbletea)
   - [Lua / Neovim](#lua--neovim)
   - [JSON](#json)
 - [Library API](#library-api)
-- `[.milli` format](#milli-format)
+- [.milli format](#milli-format)
 - [Supported inputs](#supported-inputs)
 - [FAQ](#faq)
 - [Comparison with chafa](#comparison-with-chafa)
