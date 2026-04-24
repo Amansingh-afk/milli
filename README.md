@@ -64,8 +64,8 @@ milli play anim.gif
 milli convert anim.gif anim.milli
 milli play anim.milli
 
-# export frames as Lua for Neovim dashboards (milli.nvim)
-milli export anim.gif ./out -t lua -w 60 --no-bg
+# export frames as Lua for Neovim dashboards (use with milli.nvim)
+milli export anim.gif ./out -t lua --no-helper -w 60 --no-bg
 
 # export frames as Go for Bubbletea splashes
 milli export anim.gif ./out -t go -p bootsplash -w 50
@@ -249,15 +249,39 @@ func (m Model) View() string {
 
 ### Lua / Neovim
 
+**Recommended:** use the **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** plugin. It ships the runtime (paint, loop, extmark coloring, dashboard presets) so you just generate the data file:
+
 ```bash
-milli export anim.gif ./splash -t lua -w 60 --no-bg
+milli export anim.gif ./out -t lua --no-helper -w 60 --no-bg
+```
+
+Emits `frames.lua` — drop it into milli.nvim's `lua/milli/splashes/<name>.lua` and reference by name:
+
+```lua
+require("milli").dashboard({ splash = "<name>", loop = true })
+```
+
+See [milli.nvim](https://github.com/Amansingh-afk/milli.nvim#using-your-own-splash) for the full workflow (dashboard-nvim / alpha-nvim / snacks.nvim / mini.starter / `VimEnter`).
+
+**Standalone** (no plugin, drop into your Neovim config manually):
+
+```bash
+milli export anim.gif ./out -t lua -w 60
 ```
 
 Emits:
-- `frames.lua` — frame data (glyph lines + color runs), each frame wrapped in an anonymous function so you don't hit Lua's 65k-constants-per-function cap on long animations
+- `frames.lua` — frame data (glyph lines + color runs), each frame wrapped in an anonymous function to sidestep Lua's 65k-constants-per-function cap on long animations
 - `init.lua` — extmark-based player with anchor-based positioning
 
-For the simplest flow, use the **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** plugin — drop the `frames.lua` (with `--no-helper`) into its `lua/milli/splashes/` dir and wire into your dashboard plugin of choice.
+Put the generated dir on your Neovim runtime path (e.g. `~/.config/nvim/lua/mysplash/`) then:
+
+```lua
+local splash = require("mysplash")
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "dashboard",
+  callback = function(args) splash.play(args.buf) end,
+})
+```
 
 ### JSON
 
