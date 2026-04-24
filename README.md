@@ -2,19 +2,10 @@
 
 Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal or baked into Go / Lua / JSON for embedding in TUIs and Neovim dashboards.
 
-![demo](demo.gif)
+demo
 
 [npm](https://www.npmjs.com/package/@amansingh-afk/milli)
 [license](./LICENSE)
-
-```
-    ███╗   ███╗██╗██╗     ██╗     ██╗
-    ████╗ ████║██║██║     ██║     ██║
-    ██╔████╔██║██║██║     ██║     ██║
-    ██║╚██╔╝██║██║██║     ██║     ██║
-    ██║ ╚═╝ ██║██║███████╗███████╗██║
-    ╚═╝     ╚═╝╚═╝╚══════╝╚══════╝╚═╝
-```
 
 ## Table of contents
 
@@ -85,17 +76,17 @@ milli image <path> [options]
 **Options:**
 
 
-| Flag                  | Default             | Description                                                |
-| --------------------- | ------------------- | ---------------------------------------------------------- |
-| `-w, --width <cols>`  | terminal width      | Columns (chars wide)                                       |
-| `-h, --height <rows>` | terminal height - 2 | Rows (chars tall)                                          |
-| `-m, --mode <mode>`   | `match`             | Render mode: `match` | `ramp` | `braille`                  |
-| `-s, --symbols <set>` | `ascii`             | Ramp-mode glyph set: `ascii` | `block` | `braille` | `all` |
-| `--no-color`          | off                 | Monochrome output                                          |
-| `--bg`                | auto (match mode)   | Render background color per cell                           |
-| `--invert`            | off                 | Invert luminance ramp                                      |
-| `--dither`            | off                 | Floyd-Steinberg dithering (ramp mode only)                 |
-| `--aspect <ratio>`    | `0.5`               | Char width/height ratio (tune if output is stretched)      |
+| Flag                  | Default             | Description                                           |
+| --------------------- | ------------------- | ----------------------------------------------------- |
+| `-w, --width <cols>`  | terminal width      | Columns (chars wide)                                  |
+| `-h, --height <rows>` | terminal height - 2 | Rows (chars tall)                                     |
+| `-m, --mode <mode>`   | `match`             | Render mode: `match`                                  |
+| `-s, --symbols <set>` | `ascii`             | Ramp-mode glyph set: `ascii`                          |
+| `--no-color`          | off                 | Monochrome output                                     |
+| `--bg`                | auto (match mode)   | Render background color per cell                      |
+| `--invert`            | off                 | Invert luminance ramp                                 |
+| `--dither`            | off                 | Floyd-Steinberg dithering (ramp mode only)            |
+| `--aspect <ratio>`    | `0.5`               | Char width/height ratio (tune if output is stretched) |
 
 
 **Examples:**
@@ -181,7 +172,7 @@ milli export <input> <outdir> [options]
 
 | Flag                    | Default              | Description                                                                  |
 | ----------------------- | -------------------- | ---------------------------------------------------------------------------- |
-| `-t, --target <target>` | `go`                 | `go` | `lua` | `json`                                                        |
+| `-t, --target <target>` | `go`                 | `go`                                                                         |
 | `-w, --width <cols>`    | `80`                 | Columns                                                                      |
 | `-h, --height <rows>`   | -                    | Rows cap (optional)                                                          |
 | `-m, --mode <mode>`     | `match`              | Render mode                                                                  |
