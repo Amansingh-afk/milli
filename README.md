@@ -1,6 +1,6 @@
 # milli
 
-Pixel-perfect animated ASCII art. Images, GIFs, video frames — in your terminal or baked into Go / Lua / JSON for embedding in TUIs and Neovim dashboards.
+Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal or baked into Go / Lua / JSON for embedding in TUIs and Neovim dashboards.
 
 [npm](https://www.npmjs.com/package/@amansingh-afk/milli)
 [license](./LICENSE)
@@ -74,7 +74,7 @@ milli export anim.gif ./out -t go -p bootsplash -w 50
 
 ### `milli image`
 
-Render a single image to ANSI-colored ASCII on stdout. The default command — `milli pic.png` is shorthand for `milli image pic.png`.
+Render a single image to ANSI-colored ASCII on stdout. The default command - `milli pic.png` is shorthand for `milli image pic.png`.
 
 ```bash
 milli image <path> [options]
@@ -140,7 +140,7 @@ milli play anim.milli                            # pre-baked, instant start
 
 ### `milli convert`
 
-Bake an image or GIF into a `.milli` file — a gzipped, delta-encoded frame format. Playback needs only the core engine (no `sharp`, no image decoder), so `.milli` files start instantly and ship with your app.
+Bake an image or GIF into a `.milli` file - a gzipped, delta-encoded frame format. Playback needs only the core engine (no `sharp`, no image decoder), so `.milli` files start instantly and ship with your app.
 
 ```bash
 milli convert <input> <output.milli> [options]
@@ -181,7 +181,7 @@ milli export <input> <outdir> [options]
 | ----------------------- | -------------------- | ---------------------------------------------------------------------------- |
 | `-t, --target <target>` | `go`                 | `go` | `lua` | `json`                                                        |
 | `-w, --width <cols>`    | `80`                 | Columns                                                                      |
-| `-h, --height <rows>`   | —                    | Rows cap (optional)                                                          |
+| `-h, --height <rows>`   | -                    | Rows cap (optional)                                                          |
 | `-m, --mode <mode>`     | `match`              | Render mode                                                                  |
 | `-s, --symbols <set>`   | `ascii`              | Ramp-mode glyph set                                                          |
 | `-p, --package <name>`  | outdir basename      | Go package name                                                              |
@@ -227,8 +227,8 @@ milli export anim.gif ./bootsplash -t go -p bootsplash -w 50
 
 Emits:
 
-- `frames.go` — frame data (ANSI strings per frame, delays)
-- `splash.go` — Bubbletea helper with `Tick`, `Render`, `TickMsg`, `DoneMsg`
+- `frames.go` - frame data (ANSI strings per frame, delays)
+- `splash.go` - Bubbletea helper with `Tick`, `Render`, `TickMsg`, `DoneMsg`
 
 Usage:
 
@@ -260,9 +260,9 @@ func (m Model) View() string {
 milli export anim.gif ./out -t lua -w 60 --no-bg
 ```
 
-Emits `frames.lua` — a data module with frame glyphs + per-cell color runs.
+Emits `frames.lua` - a data module with frame glyphs + per-cell color runs.
 
-Use with **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** — the companion plugin ships the runtime (paint, loop, extmark coloring) and dashboard presets. See its [Using your own splash](https://github.com/Amansingh-afk/milli.nvim#using-your-own-splash) section for the drop-in workflow.
+Use with **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** - the companion plugin ships the runtime (paint, loop, extmark coloring) and dashboard presets. See its [Using your own splash](https://github.com/Amansingh-afk/milli.nvim#using-your-own-splash) section for the drop-in workflow.
 
 ### JSON
 
@@ -270,9 +270,9 @@ Use with **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** — the c
 milli export anim.gif ./out -t json -w 50
 ```
 
-Emits `frames.json` — full `{ cols, rows, delays, frames: [[{ glyph, fg, bg }]] }`. Use for custom runtimes (Python/textual, Rust/ratatui, web players, etc).
+Emits `frames.json` - full `{ cols, rows, delays, frames: [[{ glyph, fg, bg }]] }`. Use for custom runtimes (Python/textual, Rust/ratatui, web players, etc).
 
-Want a first-class helper for your language? [Open an issue](https://github.com/Amansingh-afk/milli/issues/new) — if there's demand, we'll ship it (Go and Neovim already have dedicated paths).
+Want a first-class helper for your language? [Open an issue](https://github.com/Amansingh-afk/milli/issues/new) - if there's demand, we'll ship it (Go and Neovim already have dedicated paths).
 
 ## Library API
 
@@ -312,11 +312,11 @@ import {
 
 Compact animated ASCII format, optimized for instant playback:
 
-- **Keyframe + delta** — every Nth frame is a full snapshot; intermediate frames store only changed cells (40% change threshold). Typical ~30-70% smaller than JSON.
-- **Glyph dedupe** — shared glyph table across all frames
-- **Gzipped** — pako deflate for an extra ~30% on top
-- **Self-describing** — version, width, height, delays, loop flag baked in
-- **Zero runtime deps** — decoder is pure JS, no `sharp` needed
+- **Keyframe + delta** - every Nth frame is a full snapshot; intermediate frames store only changed cells (40% change threshold). Typical ~30-70% smaller than JSON.
+- **Glyph dedupe** - shared glyph table across all frames
+- **Gzipped** - pako deflate for an extra ~30% on top
+- **Self-describing** - version, width, height, delays, loop flag baked in
+- **Zero runtime deps** - decoder is pure JS, no `sharp` needed
 
 Use cases:
 
@@ -331,23 +331,23 @@ Backed by [sharp](https://sharp.pixelplumbing.com/) for image decoding:
 
 | Format           | `image` | `play` | `convert` | `export` |
 | ---------------- | ------- | ------ | --------- | -------- |
-| PNG              | ✓       | —      | ✓         | ✓        |
-| JPEG             | ✓       | —      | ✓         | ✓        |
+| PNG              | ✓       | -      | ✓         | ✓        |
+| JPEG             | ✓       | -      | ✓         | ✓        |
 | WebP (animated)  | ✓       | ✓      | ✓         | ✓        |
 | GIF              | ✓       | ✓      | ✓         | ✓        |
 | APNG             | ✓       | ✓      | ✓         | ✓        |
-| TIFF             | ✓       | —      | ✓         | ✓        |
-| AVIF / HEIF      | ✓       | —      | ✓         | ✓        |
-| SVG (rasterized) | ✓       | —      | ✓         | ✓        |
-| `.milli`         | —       | ✓      | —         | —        |
+| TIFF             | ✓       | -      | ✓         | ✓        |
+| AVIF / HEIF      | ✓       | -      | ✓         | ✓        |
+| SVG (rasterized) | ✓       | -      | ✓         | ✓        |
+| `.milli`         | -       | ✓      | -         | -        |
 
 
-Video (mp4/webm) is planned — for now, extract frames with `ffmpeg -i input.mp4 -r 12 frames/%04d.png` and process each.
+Video (mp4/webm) is planned - for now, extract frames with `ffmpeg -i input.mp4 -r 12 frames/%04d.png` and process each.
 
 ## FAQ
 
 **Is it fast?**  
-Yes. The match-mode glyph search uses a pre-baked font atlas and sobel-weighted MSE over small regions. Decoding a 400×400 GIF at 80×32 cells runs at ~60fps on a laptop. Playback from `.milli` is essentially free — it's just pre-rendered ANSI strings with diff-based output.
+Yes. The match-mode glyph search uses a pre-baked font atlas and sobel-weighted MSE over small regions. Decoding a 400×400 GIF at 80×32 cells runs at ~60fps on a laptop. Playback from `.milli` is essentially free - it's just pre-rendered ANSI strings with diff-based output.
 
 **Why does my output look stretched?**  
 Terminal cells are usually ~2:1 tall vs wide. Default `--aspect 0.5` compensates. If your font is different, override: `--aspect 0.45` (wider glyphs) or `--aspect 0.55` (narrower).
@@ -356,7 +356,7 @@ Terminal cells are usually ~2:1 tall vs wide. Default `--aspect 0.5` compensates
 Use `--no-bg` on export: `milli export anim.gif ./out -t lua --no-bg`. Or `--bg-threshold 0.3` to drop only dark backgrounds (luma-gated).
 
 **Why don't my colors look right?**  
-Make sure your terminal supports truecolor — check with `echo $COLORTERM` (should print `truecolor`). Fallback: `--no-color` for ASCII-only output.
+Make sure your terminal supports truecolor - check with `echo $COLORTERM` (should print `truecolor`). Fallback: `--no-color` for ASCII-only output.
 
 **Can I use this in a browser?**  
 The core engine is pure TS and browser-compatible. Right now the published npm package ships Node-only (requires `sharp` for decoding). A dedicated browser bundle is in development.
@@ -365,25 +365,25 @@ The core engine is pure TS and browser-compatible. Right now the published npm p
 `.gif` decodes + renders frames on startup (1-3s for a big GIF). `.milli` is pre-baked and plays instantly.
 
 **Where does the font atlas come from?**  
-JetBrainsMono at 8×16. Regenerate with `npx tsx scripts/build-atlas.ts` if you want a different font — then rebuild.
+JetBrainsMono at 8×16. Regenerate with `npx tsx scripts/build-atlas.ts` if you want a different font - then rebuild.
 
 **Can I customize the ASCII ramp characters?**  
 Use `-s block` (`" ░▒▓█"`) or `-s braille` (`" ⠁⠃⠇⠏⠟⠿⣿"`) or `-s all` (unified dense set). Custom ramps are a roadmap item.
 
 **How do I know it looks right before committing?**  
-Pipe to `less -R`: `milli image pic.png -w 80 | less -R`. Or for animation, preview in your terminal — alt-screen restores cleanly on exit.
+Pipe to `less -R`: `milli image pic.png -w 80 | less -R`. Or for animation, preview in your terminal - alt-screen restores cleanly on exit.
 
 ## Comparison with chafa
 
 [chafa](https://hpjansson.org/chafa/) is the quality floor. milli offers:
 
-- **Pre-baked format** — `.milli` for instant playback, ship with your app
-- **Source export** — Go / Lua / JSON for embedding (chafa is a binary)
-- **Programmatic API** — use as a Node library
-- **Neovim integration** — first-party dashboard plugin
-- **Truecolor glyph matching** — match mode uses per-glyph MSE, not just dominant color per cell
+- **Pre-baked format** - `.milli` for instant playback, ship with your app
+- **Source export** - Go / Lua / JSON for embedding (chafa is a binary)
+- **Programmatic API** - use as a Node library
+- **Neovim integration** - first-party dashboard plugin
+- **Truecolor glyph matching** - match mode uses per-glyph MSE, not just dominant color per cell
 
-If you just want a one-shot terminal render and chafa is installed — chafa is great. If you want to embed ASCII animation in your product (TUI splash, nvim dashboard, TUI game asset), milli is built for that.
+If you just want a one-shot terminal render and chafa is installed - chafa is great. If you want to embed ASCII animation in your product (TUI splash, nvim dashboard, TUI game asset), milli is built for that.
 
 ## Non-goals
 

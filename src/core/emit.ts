@@ -1,7 +1,7 @@
 import type { Cell, CellGrid, RGB } from './types.js';
 import { cellsToAnsi } from '../render/ansi.js';
 
-// Browser-safe UTF-8 byte length — avoids Buffer so this file is usable in
+// Browser-safe UTF-8 byte length - avoids Buffer so this file is usable in
 // both Node CLI and the web bundle.
 function utf8ByteLength(s: string): number {
   let n = 0;

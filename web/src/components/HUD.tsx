@@ -7,9 +7,9 @@ export function HUD({ result }: { result: ConvertResult }) {
     ['SRC_SIZE', fmtBytes(result.source.bytes)],
     ['DIMS', `${result.width} × ${result.height}`],
     ['FRAMES', String(result.grids.length)],
-    ['DUR', totalMs > 0 ? `${(totalMs / 1000).toFixed(2)}s` : '—'],
+    ['DUR', totalMs > 0 ? `${(totalMs / 1000).toFixed(2)}s` : '-'],
     ['MILLI_SIZE', fmtBytes(result.millBytes)],
-    ['RATIO', result.source.bytes ? `${((result.millBytes / result.source.bytes) * 100).toFixed(1)}%` : '—'],
+    ['RATIO', result.source.bytes ? `${((result.millBytes / result.source.bytes) * 100).toFixed(1)}%` : '-'],
     ['LOOP', result.loop ? 'YES' : 'NO'],
   ];
   return (

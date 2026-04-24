@@ -47,7 +47,7 @@ function tryRegisterFont(): string {
       return p;
     } catch { /* next */ }
   }
-  throw new Error('no monospace font found — install JetBrainsMono or DejaVu Sans Mono');
+  throw new Error('no monospace font found - install JetBrainsMono or DejaVu Sans Mono');
 }
 
 function renderGlyph(ch: string): number[] {
