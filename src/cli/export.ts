@@ -7,7 +7,6 @@ import {
   emitGoHelper,
   emitJson,
   emitLuaData,
-  emitLuaHelper,
 } from '../core/emit.js';
 import { decodeAnimation, decodeImage } from './decode.js';
 
@@ -91,11 +90,6 @@ export async function exportFromFile(
       const dataPath = resolve(outDir, 'frames.lua');
       await writeFile(dataPath, emitLuaData(grids, delays, cols, rows, opts.color, threshold));
       files.push(dataPath);
-      if (opts.withHelper) {
-        const helperPath = resolve(outDir, 'init.lua');
-        await writeFile(helperPath, emitLuaHelper());
-        files.push(helperPath);
-      }
       break;
     }
     case 'json': {

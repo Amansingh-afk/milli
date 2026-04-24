@@ -14,7 +14,6 @@ export {
   emitGoHelper,
   emitJson,
   emitLuaData,
-  emitLuaHelper,
 } from './core/emit.js';
 export type {
   Cell,

@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('milli')
   .description('Pixel-perfect ASCII art. Images now, video soon.')
-  .version('0.0.1');
+  .version('0.0.2');
 
 program
   .command('image <path>', { isDefault: true })
@@ -169,7 +169,7 @@ program
   .option('-s, --symbols <set>', 'glyph set (ramp mode)', 'ascii')
   .option('-p, --package <name>', 'Go package name (default: outdir basename)')
   .option('--aspect <ratio>', 'char w/h ratio', (v) => parseFloat(v), 0.5)
-  .option('--no-helper', 'skip helper file')
+  .option('--no-helper', 'skip helper file (go target only; lua emits data-only)')
   .option('--no-color', 'lua target: omit per-cell color runs')
   .option('--no-bg', 'fully transparent background (sugar for --bg-threshold 1)')
   .option('--bg-threshold <n>', 'bg transparency threshold 0..1 (luma-gated)', (v) => parseFloat(v))
