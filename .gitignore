@@ -3,6 +3,7 @@ dist/
 *.log
 *.tgz
 .DS_Store
+source.milli
 test/fixtures/*.png
 test/fixtures/*.jpg
 test/fixtures/*.gif
