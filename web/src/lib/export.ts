@@ -5,7 +5,6 @@ import {
   emitGoHelper,
   emitJson,
   emitLuaData,
-  emitLuaHelper,
 } from 'milli/web';
 import type { ConvertResult } from './convert';
 
@@ -53,21 +52,16 @@ export async function buildExport(
         filename: `${baseName}.json`,
       };
     case 'lua': {
-      const zip = new JSZip();
-      zip.file(
-        'frames.lua',
-        emitLuaData(
-          result.grids,
-          result.delays,
-          result.width,
-          result.height,
-          color,
-          backgroundThreshold,
-        ),
+      const data = emitLuaData(
+        result.grids,
+        result.delays,
+        result.width,
+        result.height,
+        color,
+        backgroundThreshold,
       );
-      zip.file('init.lua', emitLuaHelper());
-      const blob = await zip.generateAsync({ type: 'blob' });
-      return { data: blob, filename: `${baseName}-lua.zip` };
+      const blob = new Blob([data], { type: 'text/x-lua' });
+      return { data: blob, filename: `${baseName}.lua` };
     }
     case 'go': {
       const zip = new JSZip();

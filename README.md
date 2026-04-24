@@ -2,8 +2,8 @@
 
 Pixel-perfect animated ASCII art. Images, GIFs, video frames — in your terminal or baked into Go / Lua / JSON for embedding in TUIs and Neovim dashboards.
 
-[![npm](https://img.shields.io/npm/v/@amansingh-afk/milli.svg)](https://www.npmjs.com/package/@amansingh-afk/milli)
-[![license](https://img.shields.io/npm/l/@amansingh-afk/milli.svg)](./LICENSE)
+[npm](https://www.npmjs.com/package/@amansingh-afk/milli)
+[license](./LICENSE)
 
 ```
     ███╗   ███╗██╗██╗     ██╗     ██╗
@@ -19,18 +19,17 @@ Pixel-perfect animated ASCII art. Images, GIFs, video frames — in your termina
 - [Install](#install)
 - [Quick start](#quick-start)
 - [Commands](#commands)
-  - [`milli image`](#milli-image)
-  - [`milli play`](#milli-play)
-  - [`milli convert`](#milli-convert)
-  - [`milli export`](#milli-export)
+  - `[milli image](#milli-image)`
+  - `[milli play](#milli-play)`
+  - `[milli convert](#milli-convert)`
+  - `[milli export](#milli-export)`
 - [Render modes](#render-modes)
 - [Export targets](#export-targets)
   - [Go / Bubbletea](#go--bubbletea)
   - [Lua / Neovim](#lua--neovim)
   - [JSON](#json)
-- [milli.nvim integration](#millinvim-integration)
 - [Library API](#library-api)
-- [`.milli` format](#milli-format)
+- `[.milli` format](#milli-format)
 - [Supported inputs](#supported-inputs)
 - [FAQ](#faq)
 - [Comparison with chafa](#comparison-with-chafa)
@@ -83,17 +82,19 @@ milli image <path> [options]
 
 **Options:**
 
-| Flag | Default | Description |
-|---|---|---|
-| `-w, --width <cols>` | terminal width | Columns (chars wide) |
-| `-h, --height <rows>` | terminal height - 2 | Rows (chars tall) |
-| `-m, --mode <mode>` | `match` | Render mode: `match` \| `ramp` \| `braille` |
-| `-s, --symbols <set>` | `ascii` | Ramp-mode glyph set: `ascii` \| `block` \| `braille` \| `all` |
-| `--no-color` | off | Monochrome output |
-| `--bg` | auto (match mode) | Render background color per cell |
-| `--invert` | off | Invert luminance ramp |
-| `--dither` | off | Floyd-Steinberg dithering (ramp mode only) |
-| `--aspect <ratio>` | `0.5` | Char width/height ratio (tune if output is stretched) |
+
+| Flag                  | Default             | Description                                                |
+| --------------------- | ------------------- | ---------------------------------------------------------- |
+| `-w, --width <cols>`  | terminal width      | Columns (chars wide)                                       |
+| `-h, --height <rows>` | terminal height - 2 | Rows (chars tall)                                          |
+| `-m, --mode <mode>`   | `match`             | Render mode: `match` | `ramp` | `braille`                  |
+| `-s, --symbols <set>` | `ascii`             | Ramp-mode glyph set: `ascii` | `block` | `braille` | `all` |
+| `--no-color`          | off                 | Monochrome output                                          |
+| `--bg`                | auto (match mode)   | Render background color per cell                           |
+| `--invert`            | off                 | Invert luminance ramp                                      |
+| `--dither`            | off                 | Floyd-Steinberg dithering (ramp mode only)                 |
+| `--aspect <ratio>`    | `0.5`               | Char width/height ratio (tune if output is stretched)      |
+
 
 **Examples:**
 
@@ -115,16 +116,18 @@ milli play <path> [options]
 
 **Options:**
 
-| Flag | Default | Description |
-|---|---|---|
-| `-w, --width <cols>` | terminal width | Columns |
-| `-h, --height <rows>` | terminal height - 2 | Rows |
-| `-m, --mode <mode>` | `match` | Render mode |
-| `-s, --symbols <set>` | `ascii` | Ramp-mode glyph set |
-| `--no-color` | off | Monochrome |
-| `--no-loop` | loops by default | Play once and exit |
-| `--fps <n>` | source delays | Override framerate |
-| `--aspect <ratio>` | `0.5` | Char w/h ratio |
+
+| Flag                  | Default             | Description         |
+| --------------------- | ------------------- | ------------------- |
+| `-w, --width <cols>`  | terminal width      | Columns             |
+| `-h, --height <rows>` | terminal height - 2 | Rows                |
+| `-m, --mode <mode>`   | `match`             | Render mode         |
+| `-s, --symbols <set>` | `ascii`             | Ramp-mode glyph set |
+| `--no-color`          | off                 | Monochrome          |
+| `--no-loop`           | loops by default    | Play once and exit  |
+| `--fps <n>`           | source delays       | Override framerate  |
+| `--aspect <ratio>`    | `0.5`               | Char w/h ratio      |
+
 
 **Examples:**
 
@@ -145,14 +148,16 @@ milli convert <input> <output.milli> [options]
 
 **Options:**
 
-| Flag | Default | Description |
-|---|---|---|
-| `-w, --width <cols>` | `100` | Target columns |
-| `-h, --height <rows>` | `40` | Target rows |
-| `-m, --mode <mode>` | `match` | Render mode |
-| `-s, --symbols <set>` | `ascii` | Ramp-mode glyph set |
-| `--no-loop` | loops by default | Mark as play-once |
-| `--aspect <ratio>` | `0.5` | Char w/h ratio |
+
+| Flag                  | Default          | Description         |
+| --------------------- | ---------------- | ------------------- |
+| `-w, --width <cols>`  | `100`            | Target columns      |
+| `-h, --height <rows>` | `40`             | Target rows         |
+| `-m, --mode <mode>`   | `match`          | Render mode         |
+| `-s, --symbols <set>` | `ascii`          | Ramp-mode glyph set |
+| `--no-loop`           | loops by default | Mark as play-once   |
+| `--aspect <ratio>`    | `0.5`            | Char w/h ratio      |
+
 
 **Examples:**
 
@@ -171,19 +176,21 @@ milli export <input> <outdir> [options]
 
 **Options:**
 
-| Flag | Default | Description |
-|---|---|---|
-| `-t, --target <target>` | `go` | `go` \| `lua` \| `json` |
-| `-w, --width <cols>` | `80` | Columns |
-| `-h, --height <rows>` | — | Rows cap (optional) |
-| `-m, --mode <mode>` | `match` | Render mode |
-| `-s, --symbols <set>` | `ascii` | Ramp-mode glyph set |
-| `-p, --package <name>` | outdir basename | Go package name |
-| `--aspect <ratio>` | `0.5` | Char w/h ratio |
-| `--no-helper` | helper on | Skip helper file (Go target only; Lua is always data-only) |
-| `--no-color` | Lua target: color on | Omit per-cell color runs (smaller file) |
-| `--no-bg` | bg kept | Fully transparent background (sugar for `--bg-threshold 1`) |
-| `--bg-threshold <n>` | `0` | Luma-gated transparency `0..1` (drop bg when cell's bg luma below threshold) |
+
+| Flag                    | Default              | Description                                                                  |
+| ----------------------- | -------------------- | ---------------------------------------------------------------------------- |
+| `-t, --target <target>` | `go`                 | `go` | `lua` | `json`                                                        |
+| `-w, --width <cols>`    | `80`                 | Columns                                                                      |
+| `-h, --height <rows>`   | —                    | Rows cap (optional)                                                          |
+| `-m, --mode <mode>`     | `match`              | Render mode                                                                  |
+| `-s, --symbols <set>`   | `ascii`              | Ramp-mode glyph set                                                          |
+| `-p, --package <name>`  | outdir basename      | Go package name                                                              |
+| `--aspect <ratio>`      | `0.5`                | Char w/h ratio                                                               |
+| `--no-helper`           | helper on            | Skip helper file (Go target only; Lua is always data-only)                   |
+| `--no-color`            | Lua target: color on | Omit per-cell color runs (smaller file)                                      |
+| `--no-bg`               | bg kept              | Fully transparent background (sugar for `--bg-threshold 1`)                  |
+| `--bg-threshold <n>`    | `0`                  | Luma-gated transparency `0..1` (drop bg when cell's bg luma below threshold) |
+
 
 **Examples:**
 
@@ -200,11 +207,13 @@ milli export anim.gif ./out -t json -w 50
 
 ## Render modes
 
-| Mode | What it does | Best for |
-|---|---|---|
-| `match` | Pixel-perfect glyph matching: for each cell, picks the glyph + fg/bg pair whose rendered pixels best approximate the source region (sobel-weighted MSE over a pre-baked font atlas). Color is essential here. | Photos, screenshots, logos where detail matters |
-| `ramp` | Classic luminance ramp: maps brightness to a gradient of characters (`" .:-=+*#%@"` by default). Pair with `--dither` for Floyd-Steinberg error diffusion. | Stylized / retro look, monochrome, low-res |
-| `braille` | Treats each cell as a 2×4 sub-pixel grid using Unicode braille characters. Higher effective resolution, mono-colored per cell. | High-detail line art, dashboard splashes, diagrams |
+
+| Mode      | What it does                                                                                                                                                                                                  | Best for                                           |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `match`   | Pixel-perfect glyph matching: for each cell, picks the glyph + fg/bg pair whose rendered pixels best approximate the source region (sobel-weighted MSE over a pre-baked font atlas). Color is essential here. | Photos, screenshots, logos where detail matters    |
+| `ramp`    | Classic luminance ramp: maps brightness to a gradient of characters (`" .:-=+*#%@"` by default). Pair with `--dither` for Floyd-Steinberg error diffusion.                                                    | Stylized / retro look, monochrome, low-res         |
+| `braille` | Treats each cell as a 2×4 sub-pixel grid using Unicode braille characters. Higher effective resolution, mono-colored per cell.                                                                                | High-detail line art, dashboard splashes, diagrams |
+
 
 **Tip:** for nvim dashboards and TUIs, `braille` + `--no-bg` produces a clean look that blends with any colorscheme.
 
@@ -217,6 +226,7 @@ milli export anim.gif ./bootsplash -t go -p bootsplash -w 50
 ```
 
 Emits:
+
 - `frames.go` — frame data (ANSI strings per frame, delays)
 - `splash.go` — Bubbletea helper with `Tick`, `Render`, `TickMsg`, `DoneMsg`
 
@@ -250,17 +260,9 @@ func (m Model) View() string {
 milli export anim.gif ./out -t lua -w 60 --no-bg
 ```
 
-Emits `frames.lua` — a data module with frame glyphs + per-cell color runs. Each frame is wrapped in an anonymous function to sidestep Lua's 65k-constants-per-function cap on long animations.
+Emits `frames.lua` — a data module with frame glyphs + per-cell color runs.
 
-**Recommended:** use the **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** plugin. It ships the runtime (paint, loop, extmark coloring, dashboard presets) so you drop `frames.lua` into its `lua/milli/splashes/<name>.lua` and reference by name:
-
-```lua
-require("milli").dashboard({ splash = "<name>", loop = true })
-```
-
-See [milli.nvim](https://github.com/Amansingh-afk/milli.nvim#using-your-own-splash) for the full workflow (dashboard-nvim / alpha-nvim / snacks.nvim / mini.starter / `VimEnter`).
-
-**No plugin?** Fork milli.nvim's [runtime.lua](https://github.com/Amansingh-afk/milli.nvim/blob/main/lua/milli/runtime.lua) (~150 lines) — it's MIT, drop into your config, `require` the frames module and call `play()`.
+Use with **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** — the companion plugin ships the runtime (paint, loop, extmark coloring) and dashboard presets. See its [Using your own splash](https://github.com/Amansingh-afk/milli.nvim#using-your-own-splash) section for the drop-in workflow.
 
 ### JSON
 
@@ -270,25 +272,7 @@ milli export anim.gif ./out -t json -w 50
 
 Emits `frames.json` — full `{ cols, rows, delays, frames: [[{ glyph, fg, bg }]] }`. Use for custom runtimes (Python/textual, Rust/ratatui, web players, etc).
 
-## milli.nvim integration
-
-The companion plugin **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** handles the Neovim side: painting, looping, highlight-group management, dashboard wiring.
-
-Workflow:
-
-1. Fork milli.nvim, or install it via lazy.nvim
-2. Generate splash data from any GIF:
-   ```bash
-   milli export mycat.gif ./out -t lua -w 50 --no-bg
-   ```
-3. Drop `out/frames.lua` into `lua/milli/splashes/mycat.lua`
-4. `:MilliPreview mycat` to test
-5. Wire into dashboard-nvim / alpha-nvim / snacks.nvim / mini.starter:
-   ```lua
-   require("milli").dashboard({ splash = "mycat", loop = true })
-   ```
-
-See the plugin README for all preset wiring examples.
+Want a first-class helper for your language? [Open an issue](https://github.com/Amansingh-afk/milli/issues/new) — if there's demand, we'll ship it (Go and Neovim already have dedicated paths).
 
 ## Library API
 
@@ -335,6 +319,7 @@ Compact animated ASCII format, optimized for instant playback:
 - **Zero runtime deps** — decoder is pure JS, no `sharp` needed
 
 Use cases:
+
 - Ship a pre-baked splash with your CLI (`require('my-cli/splash.milli')`)
 - Load-once, play-many (web apps, TUIs)
 - Network-friendly (small over the wire)
@@ -343,17 +328,19 @@ Use cases:
 
 Backed by [sharp](https://sharp.pixelplumbing.com/) for image decoding:
 
-| Format | `image` | `play` | `convert` | `export` |
-|---|---|---|---|---|
-| PNG | ✓ | — | ✓ | ✓ |
-| JPEG | ✓ | — | ✓ | ✓ |
-| WebP (animated) | ✓ | ✓ | ✓ | ✓ |
-| GIF | ✓ | ✓ | ✓ | ✓ |
-| APNG | ✓ | ✓ | ✓ | ✓ |
-| TIFF | ✓ | — | ✓ | ✓ |
-| AVIF / HEIF | ✓ | — | ✓ | ✓ |
-| SVG (rasterized) | ✓ | — | ✓ | ✓ |
-| `.milli` | — | ✓ | — | — |
+
+| Format           | `image` | `play` | `convert` | `export` |
+| ---------------- | ------- | ------ | --------- | -------- |
+| PNG              | ✓       | —      | ✓         | ✓        |
+| JPEG             | ✓       | —      | ✓         | ✓        |
+| WebP (animated)  | ✓       | ✓      | ✓         | ✓        |
+| GIF              | ✓       | ✓      | ✓         | ✓        |
+| APNG             | ✓       | ✓      | ✓         | ✓        |
+| TIFF             | ✓       | —      | ✓         | ✓        |
+| AVIF / HEIF      | ✓       | —      | ✓         | ✓        |
+| SVG (rasterized) | ✓       | —      | ✓         | ✓        |
+| `.milli`         | —       | ✓      | —         | —        |
+
 
 Video (mp4/webm) is planned — for now, extract frames with `ffmpeg -i input.mp4 -r 12 frames/%04d.png` and process each.
 
