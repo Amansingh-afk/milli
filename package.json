@@ -1,0 +1,57 @@
+{
+  "name": "@amansingh-afk/milli",
+  "version": "0.0.1",
+  "description": "Pixel-perfect animated ASCII art engine. Images, GIFs, video. CLI.",
+  "type": "module",
+  "bin": {
+    "milli": "./dist/bin/milli.js"
+  },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsx bin/milli.ts",
+    "build": "tsc -p tsconfig.json && cp src/core/atlas.json dist/src/core/atlas.json",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ascii",
+    "ansi",
+    "terminal",
+    "tui",
+    "image",
+    "video",
+    "animation"
+  ],
+  "author": "Amansingh <amansingh.afk@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Amansingh-afk/milli.git"
+  },
+  "homepage": "https://github.com/Amansingh-afk/milli#readme",
+  "bugs": {
+    "url": "https://github.com/Amansingh-afk/milli/issues"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "gifuct-js": "^2.1.2",
+    "pako": "^2.1.0",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/pako": "^2.0.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
