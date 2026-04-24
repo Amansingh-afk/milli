@@ -2,6 +2,8 @@
 
 Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal or baked into Go / Lua / JSON for embedding in TUIs and Neovim dashboards.
 
+![demo](demo.gif)
+
 [npm](https://www.npmjs.com/package/@amansingh-afk/milli)
 [license](./LICENSE)
 
