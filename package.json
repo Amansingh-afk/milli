@@ -1,6 +1,6 @@
 {
   "name": "@amansingh-afk/milli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Pixel-perfect animated ASCII art engine. Images, GIFs, video. CLI.",
   "type": "module",
   "bin": {
@@ -12,6 +12,10 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "import": "./dist/src/index.js"
+    },
+    "./web": {
+      "types": "./dist/src/web.d.ts",
+      "import": "./dist/src/web.js"
     }
   },
   "files": [
