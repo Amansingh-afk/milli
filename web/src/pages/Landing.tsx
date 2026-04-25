@@ -1,15 +1,14 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Hero } from '../components/Hero';
-import { Showcase } from '../components/Showcase';
 import { Footer } from '../components/Footer';
 import { AsciiBackground } from '../components/AsciiBackground';
+import { GithubLink } from '../components/GithubLink';
 
 export function Landing() {
-  const navigate = useNavigate();
-
   return (
     <>
       <AsciiBackground />
+      <GithubLink />
       <div className="shell">
         <div className="scanlines" aria-hidden />
         <div className="noise" aria-hidden />
@@ -35,15 +34,6 @@ export function Landing() {
             [ ▸ launch the tool ]
           </Link>
         </div>
-
-        <div className="scroll-hint" aria-hidden>
-          <span>SCROLL</span>
-          <span className="scroll-hint__arrow">▼</span>
-        </div>
-
-        <main className="main">
-          <Showcase onPick={(name) => navigate(`/create?showcase=${name}`)} />
-        </main>
 
         <Footer />
       </div>

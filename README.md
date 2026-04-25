@@ -4,7 +4,10 @@ Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal 
 
 ![demo](demo.gif)
 
-[**🌐 try in browser →**](https://milli-five.vercel.app/) &nbsp;·&nbsp; [npm](https://www.npmjs.com/package/@amansingh-afk/milli) &nbsp;·&nbsp; [license](./LICENSE)
+[![Try in Browser](https://img.shields.io/badge/▸_try_in_browser-00ffe1?style=for-the-badge&labelColor=000000)](https://milli-five.vercel.app/)
+[![npm](https://img.shields.io/npm/v/@amansingh-afk/milli?style=for-the-badge&color=cb3837&labelColor=000000&label=npm)](https://www.npmjs.com/package/@amansingh-afk/milli)
+[![GitHub stars](https://img.shields.io/github/stars/Amansingh-afk/milli?style=for-the-badge&logo=github&color=181717&labelColor=000000)](https://github.com/Amansingh-afk/milli)
+[![License](https://img.shields.io/github/license/Amansingh-afk/milli?style=for-the-badge&labelColor=000000)](./LICENSE)
 
 > No install. Drop an image or GIF into the [web playground](https://milli-five.vercel.app/) and grab the ASCII / `.milli` / Go / Lua / JSON output instantly. Same engine as the CLI, all browser-side.
 

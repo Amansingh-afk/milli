@@ -6,6 +6,7 @@ import { HUD } from '../components/HUD';
 import { Footer } from '../components/Footer';
 import { Tune } from '../components/Tune';
 import { Export } from '../components/Export';
+import { Showcase } from '../components/Showcase';
 import type { RenderMode } from '@amansingh-afk/milli/web';
 import { convertFile, type ConvertResult } from '../lib/convert';
 import { loadShowcase } from '../lib/showcase';
@@ -80,6 +81,25 @@ export function Create() {
     [status],
   );
 
+  const loadShowcaseByName = useCallback(
+    (name: string) => {
+      abortRef.current?.abort();
+      const ac = new AbortController();
+      abortRef.current = ac;
+      setStatus({ kind: 'working', phase: 'LOADING', pct: 0 });
+      loadShowcase(`/showcase/${name}.milli`)
+        .then((result) => {
+          if (ac.signal.aborted) return;
+          setStatus({ kind: 'ready', result });
+        })
+        .catch((e) => {
+          if (ac.signal.aborted) return;
+          setStatus({ kind: 'error', message: (e as Error).message });
+        });
+    },
+    [],
+  );
+
   const reset = useCallback(() => {
     abortRef.current?.abort();
     setStatus({ kind: 'idle' });
@@ -90,24 +110,10 @@ export function Create() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  // preload showcase entry from query param
+  // preload showcase entry from query param (initial mount)
   useEffect(() => {
     const name = params.get('showcase');
-    if (!name) return;
-    let cancelled = false;
-    setStatus({ kind: 'working', phase: 'LOADING', pct: 0 });
-    loadShowcase(`/showcase/${name}.milli`)
-      .then((result) => {
-        if (cancelled) return;
-        setStatus({ kind: 'ready', result });
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        setStatus({ kind: 'error', message: (e as Error).message });
-      });
-    return () => {
-      cancelled = true;
-    };
+    if (name) loadShowcaseByName(name);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -131,15 +137,23 @@ export function Create() {
 
       <main className="main main--create">
         {status.kind === 'idle' && (
-          <Dropzone
-            onFile={handleFile}
-            width={width}
-            setWidth={setWidth}
-            mode={mode}
-            setMode={setMode}
-            color={color}
-            setColor={setColor}
-          />
+          <>
+            <Dropzone
+              onFile={handleFile}
+              width={width}
+              setWidth={setWidth}
+              mode={mode}
+              setMode={setMode}
+              color={color}
+              setColor={setColor}
+            />
+            <Showcase
+              onPick={(name) => {
+                setParams({ showcase: name }, { replace: true });
+                loadShowcaseByName(name);
+              }}
+            />
+          </>
         )}
 
         {status.kind === 'working' && (
