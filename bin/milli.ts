@@ -5,7 +5,7 @@ import { decodeAnimation, decodeImage } from '../src/cli/decode.js';
 import { exportFromFile, type ExportTarget } from '../src/cli/export.js';
 import { fitGrid, frameToCells } from '../src/core/engine.js';
 import { decodeMilli, encodeMilli, frameToGrid } from '../src/core/format.js';
-import { cellsToAnsi } from '../src/render/ansi.js';
+import { cellsToAnsi, cellsToAnsiPlaced } from '../src/render/ansi.js';
 import { play } from '../src/render/player.js';
 import type { CellGrid, EngineOptions, GlyphSet, RenderMode } from '../src/core/types.js';
 
@@ -62,18 +62,56 @@ program
   .option('--no-loop', 'play once and exit')
   .option('--fps <n>', 'override fps', (v) => parseFloat(v))
   .option('--aspect <ratio>', 'char w/h ratio', (v) => parseFloat(v), 0.5)
+  .option('--inline', 'paint in-place (no alt-screen) for composition with other output', false)
+  .option('--at <pos>', 'inline anchor as "x,y" 1-based terminal cell', '1,1')
   .action(async (path: string, opts) => {
+    let atX = 1;
+    let atY = 1;
+    if (opts.inline) {
+      const m = String(opts.at).match(/^(\d+),(\d+)$/);
+      if (!m) {
+        process.stderr.write('--at expects "x,y" (1-based, e.g. --at 2,1)\n');
+        process.exit(1);
+      }
+      atX = parseInt(m[1]!, 10);
+      atY = parseInt(m[2]!, 10);
+    }
+
     if (path.endsWith('.milli')) {
       const buf = await readFile(path);
       const file = decodeMilli(buf);
-      const rendered = file.frames.map((_, i) =>
-        cellsToAnsi(frameToGrid(file, i), { color: opts.color, background: true }),
-      );
+      let clipW = file.width;
+      let clipH = file.height;
+      if (opts.inline) {
+        const termCols = process.stdout.columns ?? 0;
+        const termRows = process.stdout.rows ?? 0;
+        if (termCols && termRows) {
+          const availW = Math.max(1, termCols - atX + 1);
+          const availH = Math.max(1, termRows - atY + 1);
+          if (file.width > availW || file.height > availH) {
+            process.stderr.write(`warning: animation ${file.width}x${file.height} larger than available ${availW}x${availH} from (${atX},${atY}); clipping\n`);
+          }
+          clipW = Math.min(file.width, availW);
+          clipH = Math.min(file.height, availH);
+        }
+      }
+      const rendered = file.frames.map((_, i) => {
+        const grid = frameToGrid(file, i);
+        return opts.inline
+          ? cellsToAnsiPlaced(grid, {
+              color: opts.color,
+              background: true,
+              termX: atX,
+              termY: atY,
+              region: { x: 0, y: 0, w: clipW, h: clipH },
+            })
+          : cellsToAnsi(grid, { color: opts.color, background: true });
+      });
       const delays = opts.fps
         ? new Array(file.frames.length).fill(Math.round(1000 / opts.fps))
         : file.frames.map((f) => f.delay);
       const loop = opts.loop && file.loop;
-      await play({ frames: rendered, delays, loop });
+      await play({ frames: rendered, delays, loop, inline: opts.inline, atY, height: clipH });
       return;
     }
 
@@ -95,16 +133,37 @@ program
     };
     const bg = mode === 'match';
 
+    let clipW = cols;
+    let clipH = rows;
+    if (opts.inline) {
+      const availW = Math.max(1, termCols - atX + 1);
+      const availH = Math.max(1, termRows - atY + 1);
+      if (cols > availW || rows > availH) {
+        process.stderr.write(`warning: animation ${cols}x${rows} larger than available ${availW}x${availH} from (${atX},${atY}); clipping\n`);
+      }
+      clipW = Math.min(cols, availW);
+      clipH = Math.min(rows, availH);
+    }
+
     process.stderr.write(`decoding ${anim.frames.length} frames at ${cols}x${rows}...\n`);
-    const rendered = anim.frames.map((f) =>
-      cellsToAnsi(frameToCells(f, engineOpts), { color: opts.color, background: bg }),
-    );
+    const rendered = anim.frames.map((f) => {
+      const grid = frameToCells(f, engineOpts);
+      return opts.inline
+        ? cellsToAnsiPlaced(grid, {
+            color: opts.color,
+            background: bg,
+            termX: atX,
+            termY: atY,
+            region: { x: 0, y: 0, w: clipW, h: clipH },
+          })
+        : cellsToAnsi(grid, { color: opts.color, background: bg });
+    });
 
     const delays = opts.fps
       ? new Array(anim.frames.length).fill(Math.round(1000 / opts.fps))
       : anim.delays;
 
-    await play({ frames: rendered, delays, loop: opts.loop });
+    await play({ frames: rendered, delays, loop: opts.loop, inline: opts.inline, atY, height: clipH });
   });
 
 program

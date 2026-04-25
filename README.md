@@ -26,6 +26,14 @@ Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal,
   - [Lua / Neovim](#lua--neovim)
   - [JSON](#json)
 - [Library API](#library-api)
+- [Recipes](#recipes)
+  - [Neovim dashboard splash](#neovim-dashboard-splash)
+  - [Terminal screensaver on idle](#terminal-screensaver-on-idle)
+  - [Shell MOTD greeting](#shell-motd-greeting)
+  - [tmux pane decoration](#tmux-pane-decoration)
+  - [React / web embed](#react--web-embed)
+  - [Bubbletea TUI splash](#bubbletea-tui-splash)
+  - [Static logo for neofetch / fastfetch](#static-logo-for-neofetch--fastfetch)
 - [.milli format](#milli-format)
 - [Supported inputs](#supported-inputs)
 - [FAQ](#faq)
@@ -116,16 +124,18 @@ milli play <path> [options]
 **Options:**
 
 
-| Flag                  | Default             | Description         |
-| --------------------- | ------------------- | ------------------- |
-| `-w, --width <cols>`  | terminal width      | Columns             |
-| `-h, --height <rows>` | terminal height - 2 | Rows                |
-| `-m, --mode <mode>`   | `match`             | Render mode         |
-| `-s, --symbols <set>` | `ascii`             | Ramp-mode glyph set |
-| `--no-color`          | off                 | Monochrome          |
-| `--no-loop`           | loops by default    | Play once and exit  |
-| `--fps <n>`           | source delays       | Override framerate  |
-| `--aspect <ratio>`    | `0.5`               | Char w/h ratio      |
+| Flag                  | Default             | Description                                                |
+| --------------------- | ------------------- | ---------------------------------------------------------- |
+| `-w, --width <cols>`  | terminal width      | Columns                                                    |
+| `-h, --height <rows>` | terminal height - 2 | Rows                                                       |
+| `-m, --mode <mode>`   | `match`             | Render mode                                                |
+| `-s, --symbols <set>` | `ascii`             | Ramp-mode glyph set                                        |
+| `--no-color`          | off                 | Monochrome                                                 |
+| `--no-loop`           | loops by default    | Play once and exit                                         |
+| `--fps <n>`           | source delays       | Override framerate                                         |
+| `--aspect <ratio>`    | `0.5`               | Char w/h ratio                                             |
+| `--inline`            | off                 | Paint in-place (no alt-screen) for composition with other output |
+| `--at <x,y>`          | `1,1`               | Inline anchor as 1-based terminal cell                     |
 
 
 **Examples:**
@@ -135,6 +145,7 @@ milli play anim.gif                              # loops forever, Ctrl+C to exit
 milli play anim.gif --no-loop                    # play once
 milli play anim.gif -w 80 -m ramp --fps 12
 milli play anim.milli                            # pre-baked, instant start
+milli play anim.milli --inline --at 5,3          # animate at col 5 row 3, no alt-screen
 ```
 
 ### `milli convert`
@@ -306,6 +317,247 @@ import {
   play,                                  // fullscreen player
 } from '@amansingh-afk/milli';
 ```
+
+## Recipes
+
+Real-world places to drop milli output. Examples are minimal - swap the splash file / size for your own.
+
+### Neovim dashboard splash
+
+Use **[milli.nvim](https://github.com/Amansingh-afk/milli.nvim)** - the companion plugin handles paint, looping, and dashboard host wiring (dashboard-nvim, alpha-nvim, mini.starter, snacks.nvim).
+
+```lua
+-- lazy.nvim
+{
+  "Amansingh-afk/milli.nvim",
+  lazy = false,
+  config = function()
+    require("milli").dashboard({ splash = "fire", loop = true })
+  end,
+}
+```
+
+29 splashes ship bundled. Drop your own `frames.lua` from `milli export -t lua` into the plugin's `splashes/` directory and reference it by name.
+
+### Terminal screensaver on idle
+
+Bake once at fullscreen-friendly width, loop forever in a fullscreen terminal launched by your idle daemon.
+
+```bash
+milli convert your.gif ~/.config/milli/saver.milli -w 220 -m braille
+```
+
+`braille` mode is mono-per-cell with no background, so it overlays cleanly on any terminal theme. Bump `-w` until the rendered ASCII fills your screen at your terminal's font size.
+
+**Wayland + Hyprland (hypridle)** — `~/.config/hypr/hypridle.conf`:
+
+```
+listener {
+    timeout = 300
+    on-timeout = alacritty --class milli-saver -e milli play ~/.config/milli/saver.milli
+}
+```
+
+Pair with a windowrule in `~/.config/hypr/windowrules.conf` so it fullscreens borderless:
+
+```
+windowrulev2 = fullscreen, class:^(milli-saver)$
+windowrulev2 = noborder, class:^(milli-saver)$
+```
+
+Add `exec-once = hypridle` to `hyprland.conf` to autostart.
+
+> Skip `on-resume` to kill the saver — Hyprland's cursor unhide on window creation fires resume immediately and would kill the window before it renders. Close manually with your usual close binding.
+
+**Wayland + sway / wlroots (swayidle)**:
+
+```bash
+swayidle -w timeout 300 'alacritty --class milli-saver -e milli play ~/.config/milli/saver.milli'
+```
+
+**X11 + xscreensaver** — in `~/.xscreensaver`, `programs:`:
+
+```
+"milli"  xterm -fullscreen -e milli play ~/.config/milli/saver.milli  \n\
+```
+
+**X11 + plain idle poll** — `xprintidle` + bash loop:
+
+```bash
+while true; do
+  if [ "$(xprintidle)" -gt 300000 ]; then
+    kitty --start-as fullscreen -e milli play ~/.config/milli/saver.milli
+  fi
+  sleep 5
+done
+```
+
+**macOS** — no native terminal-screensaver hook. Use Hammerspoon (or similar) watching idle and launching iTerm / kitty fullscreen with `milli play`.
+
+Tip: kitty / wezterm / alacritty with a fullscreen flag give a borderless canvas. ASCII looks much better with a tight cell-padded font.
+
+### Shell MOTD greeting
+
+Play a short clip on shell startup. Use `--no-loop` so it exits and drops you at the prompt.
+
+```bash
+# ~/.zshrc or ~/.bashrc
+milli play ~/.config/milli/greet.milli --no-loop
+```
+
+Bake once for instant startup (no GIF decode on every shell):
+
+```bash
+milli convert greet.gif ~/.config/milli/greet.milli -w 60
+```
+
+For an instant single-frame logo (no animation), use `milli image`:
+
+```bash
+milli image ~/.config/milli/logo.png -w 60 --no-bg
+```
+
+### tmux pane decoration
+
+Decorate a pane with a looping splash while you work in another.
+
+```bash
+# ~/.tmux.conf
+bind-key M-m split-window -h -p 30 'milli play ~/.config/milli/decor.milli'
+```
+
+`Prefix + Alt-m` opens a 30%-wide pane on the right running the splash. Resize with prefix arrows; closing the pane stops playback.
+
+### React / web embed
+
+Render any `.milli` file in a React component using the published browser subpath.
+
+```bash
+npm install @amansingh-afk/milli
+```
+
+```tsx
+import { useEffect, useRef } from 'react';
+import { decodeMilli, frameToGrid } from '@amansingh-afk/milli/web';
+
+export function Splash({ src }: { src: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const buf = new Uint8Array(await (await fetch(src)).arrayBuffer());
+      const file = decodeMilli(buf);
+      const ctx = canvasRef.current!.getContext('2d')!;
+      let i = 0;
+      const tick = () => {
+        if (cancelled) return;
+        const grid = frameToGrid(file, i);
+        // ...your renderer (canvas / DOM / WebGL) draws grid[y][x] = { glyph, fg, bg }
+        i = (i + 1) % file.frames.length;
+        setTimeout(tick, file.delays[i] ?? 100);
+      };
+      tick();
+    })();
+    return () => { cancelled = true; };
+  }, [src]);
+
+  return <canvas ref={canvasRef} width={1200} height={630} />;
+}
+```
+
+The web playground at [milli-five.vercel.app](https://milli-five.vercel.app/) uses this exact import.
+
+### Bubbletea TUI splash
+
+```bash
+milli export anim.gif ./bootsplash -t go -p bootsplash -w 50
+```
+
+Wire the emitted helper into your model:
+
+```go
+import "myapp/internal/bootsplash"
+
+func (m Model) Init() tea.Cmd { return bootsplash.Tick(0) }
+
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    switch msg := msg.(type) {
+    case bootsplash.TickMsg:
+        m.splashFrame = msg.Index
+        return m, bootsplash.Tick(msg.Index)
+    case bootsplash.DoneMsg:
+        m.splashing = false
+    }
+    return m, nil
+}
+
+func (m Model) View() string {
+    if m.splashing { return bootsplash.Render(m.splashFrame, m.width, m.height) }
+    return m.mainView()
+}
+```
+
+The generated `splash.go` ships `Tick`, `Render`, `TickMsg`, `DoneMsg` - no extra dependency on milli at runtime.
+
+### Static logo for neofetch / fastfetch
+
+Caveat first: neofetch / fastfetch print their logo once and exit, so **animation isn't possible** in either tool. A single rendered frame as the logo works fine.
+
+```bash
+# render any image as a colored ASCII logo (40 cols is a good fastfetch fit)
+milli image logo.png -w 40 -m match > ~/.config/fastfetch/logo.txt
+```
+
+`match` mode preserves source colors per cell (best for logos with brand colors). For a flatter look, use `-m ramp` (luminance to ASCII chars, no per-cell bg).
+
+**fastfetch** — replace the default distro logo. In `~/.config/fastfetch/config.jsonc`, swap your existing `"logo"` block (typically `"type": "auto"`) with:
+
+```jsonc
+"logo": {
+  "source": "~/.config/fastfetch/logo.txt",
+  "type": "file-raw",
+  "padding": { "top": 1, "left": 2, "right": 2 }
+}
+```
+
+`file-raw` passes the ANSI escapes through unchanged — required for color. The plain `file` type strips escapes and you'll lose color. To test before editing config, override on the CLI:
+
+```bash
+fastfetch --logo ~/.config/fastfetch/logo.txt --logo-type file-raw
+```
+
+**neofetch** — in `~/.config/neofetch/config.conf`:
+
+```bash
+ascii_distro="off"
+image_backend="ascii"
+image_source="~/.config/fastfetch/logo.txt"
+```
+
+neofetch reads the file as-is but its layout assumes a fixed-width box. If colors look broken, drop to mono with `milli image logo.png -w 40 -m braille --no-color`.
+
+**Animated logo (`milli play --inline`)** — a tiny wrapper composes static fastfetch info with a looping milli animation in the logo region.
+
+```bash
+# 1. bake a small .milli (50 cols × 18 rows is a good size)
+milli convert clip.gif ~/.config/milli/anim.milli -w 50 -m match
+
+# 2. blank placeholder so fastfetch reserves the logo column
+python3 -c "print('\n'.join([' '*50]*18))" > ~/.config/fastfetch/blank-logo.txt
+```
+
+Save as `~/.local/bin/animfetch` and `chmod +x` it:
+
+```bash
+#!/usr/bin/env bash
+set -e
+clear
+fastfetch --logo ~/.config/fastfetch/blank-logo.txt --logo-type file-raw
+exec milli play ~/.config/milli/anim.milli --inline --at 3,2
+```
+
+`fastfetch` prints once and exits, leaving info on the right and an empty logo column on the left. `milli play --inline` then loops over that column without alt-screen or scroll. Ctrl+C exits and the cursor lands below the animation. Resize to fit your terminal — frames clip if smaller than baked dimensions.
 
 ## `.milli` format
 
