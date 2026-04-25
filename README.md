@@ -1,6 +1,6 @@
 # milli
 
-Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal or baked into Go / Lua / JSON for embedding in TUIs and Neovim dashboards.
+Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal, in the [browser playground](https://milli-five.vercel.app/), or baked into Go / Lua / JSON for embedding in TUIs and Neovim dashboards.
 
 ![demo](demo.gif)
 
