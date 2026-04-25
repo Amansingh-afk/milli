@@ -559,6 +559,15 @@ exec milli play ~/.config/milli/anim.milli --inline --at 3,2
 
 `fastfetch` prints once and exits, leaving info on the right and an empty logo column on the left. `milli play --inline` then loops over that column without alt-screen or scroll. Ctrl+C exits and the cursor lands below the animation. Resize to fit your terminal — frames clip if smaller than baked dimensions.
 
+Run with `animfetch`. To make it your default, alias in your shell rc:
+
+```bash
+# ~/.zshrc / ~/.bashrc
+alias fastfetch=animfetch
+```
+
+Use `command fastfetch` (or `\fastfetch`) when you want the real one-shot fastfetch instead of the animated wrapper.
+
 ## `.milli` format
 
 Compact animated ASCII format, optimized for instant playback:
