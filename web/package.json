@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@amansingh-afk/milli": "^0.0.3",
+    "@amansingh-afk/milli": "^0.0.4",
     "@vercel/analytics": "^2.0.1",
     "jszip": "^3.10.1",
     "react": "^19.2.5",

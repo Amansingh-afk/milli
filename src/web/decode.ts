@@ -10,13 +10,15 @@ export interface Animation {
 
 export async function decodeImageBlob(blob: Blob): Promise<Frame> {
   const bmp = await createImageBitmap(blob);
-  const canvas = new OffscreenCanvas(bmp.width, bmp.height);
+  const width = bmp.width;
+  const height = bmp.height;
+  const canvas = new OffscreenCanvas(width, height);
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) throw new Error('decodeImageBlob: no 2d context');
   ctx.drawImage(bmp, 0, 0);
-  const img = ctx.getImageData(0, 0, bmp.width, bmp.height);
+  const img = ctx.getImageData(0, 0, width, height);
   bmp.close?.();
-  return { width: bmp.width, height: bmp.height, rgb: rgbaToRgb(img.data) };
+  return { width, height, rgb: rgbaToRgb(img.data) };
 }
 
 export async function decodeGifBuffer(buf: ArrayBuffer): Promise<Animation> {
