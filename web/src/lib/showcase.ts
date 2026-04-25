@@ -1,4 +1,4 @@
-import { decodeMilli, frameToGrid } from 'milli/web';
+import { decodeMilli, frameToGrid } from '@amansingh-afk/milli/web';
 import type { ConvertResult } from './convert';
 
 export interface ShowcaseEntry {

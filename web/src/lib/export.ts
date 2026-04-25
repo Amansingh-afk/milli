@@ -5,7 +5,7 @@ import {
   emitGoHelper,
   emitJson,
   emitLuaData,
-} from 'milli/web';
+} from '@amansingh-afk/milli/web';
 import type { ConvertResult } from './convert';
 
 export type ExportTarget = 'milli' | 'ansi' | 'json' | 'lua' | 'go';

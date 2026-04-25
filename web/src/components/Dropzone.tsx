@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import type { RenderMode } from 'milli/web';
+import type { RenderMode } from '@amansingh-afk/milli/web';
 
 export interface DropzoneProps {
   onFile: (file: File) => void;

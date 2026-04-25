@@ -1,37 +1,38 @@
 import { useEffect, useRef, useState } from 'react';
-import { cellsToCanvas, measureCanvas } from 'milli/web';
+import { cellsToCanvas, measureCanvas } from '@amansingh-afk/milli/web';
 import { loadShowcase, type ShowcaseEntry } from '../lib/showcase';
 import type { ConvertResult } from '../lib/convert';
 
+export interface ShowcaseProps {
+  onPick: (name: string) => void;
+}
+
 const ENTRIES: ShowcaseEntry[] = [
+  { file: 'jellyfish.milli', label: 'jellyfish' },
   { file: 'fire.milli', label: 'fire' },
-  { file: 'test3.milli', label: 'test3' },
-  { file: 'test5.milli', label: 'test5' },
-  { file: 'test6.milli', label: 'test6' },
-  { file: 'test7.milli', label: 'test7' },
-  { file: 'tet7.milli', label: 'tet7' },
-  { file: 'test8.milli', label: 'test8' },
-  { file: 'tesst10.milli', label: 'tesst10' },
-  { file: 'test12.milli', label: 'test12' },
-  { file: 'test13.milli', label: 'test13' },
-  { file: 'test15.milli', label: 'test15' },
-  { file: 'test16.milli', label: 'test16' },
-  { file: 'test17.milli', label: 'test17' },
-  { file: 'test26.milli', label: 'test26' },
-  { file: 'test27.milli', label: 'test27' },
-  { file: 'test28.milli', label: 'test28' },
-  { file: 'test29.milli', label: 'test29' },
-  { file: 'test31.milli', label: 'test31' },
-  { file: 'test37.milli', label: 'test37' },
-  { file: 'test38.milli', label: 'test38' },
+  { file: 'nebula.milli', label: 'nebula' },
+  { file: 'glitch.milli', label: 'glitch' },
+  { file: 'vapor.milli', label: 'vapor' },
+  { file: 'drift.milli', label: 'drift' },
+  { file: 'pulse.milli', label: 'pulse' },
+  { file: 'neon.milli', label: 'neon' },
+  { file: 'signal.milli', label: 'signal' },
+  { file: 'void.milli', label: 'void' },
+  { file: 'ghost.milli', label: 'ghost' },
+  { file: 'scan.milli', label: 'scan' },
+  { file: 'orbit.milli', label: 'orbit' },
+  { file: 'prism.milli', label: 'prism' },
+  { file: 'comet.milli', label: 'comet' },
+  { file: 'flux.milli', label: 'flux' },
+  { file: 'echo.milli', label: 'echo' },
+  { file: 'aurora.milli', label: 'aurora' },
+  { file: 'static.milli', label: 'static' },
+  { file: 'chrome.milli', label: 'chrome' },
+  { file: 'matrix.milli', label: 'matrix' },
 ];
 
 const THUMB_CELL = 5;
 const THUMB_CELL_H = 10;
-
-export interface ShowcaseProps {
-  onPick: (result: ConvertResult) => void;
-}
 
 export function Showcase({ onPick }: ShowcaseProps) {
   return (
@@ -46,7 +47,7 @@ export function Showcase({ onPick }: ShowcaseProps) {
   );
 }
 
-function ShowcaseTile({ entry, onPick }: { entry: ShowcaseEntry; onPick: (r: ConvertResult) => void }) {
+function ShowcaseTile({ entry, onPick }: { entry: ShowcaseEntry; onPick: (name: string) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, setState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const resultRef = useRef<ConvertResult | null>(null);
@@ -108,7 +109,7 @@ function ShowcaseTile({ entry, onPick }: { entry: ShowcaseEntry; onPick: (r: Con
     <button
       ref={tileRef}
       className={`showcase__tile showcase__tile--${state}`}
-      onClick={() => resultRef.current && onPick(resultRef.current)}
+      onClick={() => resultRef.current && onPick(entry.label)}
       disabled={state !== 'ready'}
       title={`${entry.label}${dims ? ' · ' + dims : ''}${frames ? ' · ' + frames + 'f' : ''}${kb ? ' · ' + kb + 'KB' : ''}`}
     >

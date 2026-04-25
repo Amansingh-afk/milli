@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { cellsToCanvas, measureCanvas } from 'milli/web';
+import { cellsToCanvas, measureCanvas } from '@amansingh-afk/milli/web';
 import type { ConvertResult } from '../lib/convert';
 
 export interface PlayerProps {

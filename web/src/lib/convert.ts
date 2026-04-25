@@ -6,7 +6,7 @@ import {
   type Animation,
   type CellGrid,
   type RenderMode,
-} from 'milli/web';
+} from '@amansingh-afk/milli/web';
 
 export interface ConvertOptions {
   width: number;

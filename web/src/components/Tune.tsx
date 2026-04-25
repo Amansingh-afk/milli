@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { RenderMode } from 'milli/web';
+import type { RenderMode } from '@amansingh-afk/milli/web';
 import type { ConvertResult } from '../lib/convert';
 
 export interface TuneProps {
