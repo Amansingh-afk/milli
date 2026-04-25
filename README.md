@@ -124,16 +124,18 @@ milli play <path> [options]
 **Options:**
 
 
-| Flag                  | Default             | Description         |
-| --------------------- | ------------------- | ------------------- |
-| `-w, --width <cols>`  | terminal width      | Columns             |
-| `-h, --height <rows>` | terminal height - 2 | Rows                |
-| `-m, --mode <mode>`   | `match`             | Render mode         |
-| `-s, --symbols <set>` | `ascii`             | Ramp-mode glyph set |
-| `--no-color`          | off                 | Monochrome          |
-| `--no-loop`           | loops by default    | Play once and exit  |
-| `--fps <n>`           | source delays       | Override framerate  |
-| `--aspect <ratio>`    | `0.5`               | Char w/h ratio      |
+| Flag                  | Default             | Description                                                |
+| --------------------- | ------------------- | ---------------------------------------------------------- |
+| `-w, --width <cols>`  | terminal width      | Columns                                                    |
+| `-h, --height <rows>` | terminal height - 2 | Rows                                                       |
+| `-m, --mode <mode>`   | `match`             | Render mode                                                |
+| `-s, --symbols <set>` | `ascii`             | Ramp-mode glyph set                                        |
+| `--no-color`          | off                 | Monochrome                                                 |
+| `--no-loop`           | loops by default    | Play once and exit                                         |
+| `--fps <n>`           | source delays       | Override framerate                                         |
+| `--aspect <ratio>`    | `0.5`               | Char w/h ratio                                             |
+| `--inline`            | off                 | Paint in-place (no alt-screen) for composition with other output |
+| `--at <x,y>`          | `1,1`               | Inline anchor as 1-based terminal cell                     |
 
 
 **Examples:**
@@ -143,6 +145,7 @@ milli play anim.gif                              # loops forever, Ctrl+C to exit
 milli play anim.gif --no-loop                    # play once
 milli play anim.gif -w 80 -m ramp --fps 12
 milli play anim.milli                            # pre-baked, instant start
+milli play anim.milli --inline --at 5,3          # animate at col 5 row 3, no alt-screen
 ```
 
 ### `milli convert`
@@ -534,7 +537,27 @@ image_source="~/.config/fastfetch/logo.txt"
 
 neofetch reads the file as-is but its layout assumes a fixed-width box. If colors look broken, drop to mono with `milli image logo.png -w 40 -m braille --no-color`.
 
-> A true *animated* fetch isn't possible inside either tool — they're one-shot programs. You'd need a wrapper that prints fetch info via `fastfetch --logo none` then runs `milli play` next to it (terminal-cursor positioning by hand). Not built-in.
+**Animated logo (`milli play --inline`)** — a tiny wrapper composes static fastfetch info with a looping milli animation in the logo region.
+
+```bash
+# 1. bake a small .milli (50 cols × 18 rows is a good size)
+milli convert clip.gif ~/.config/milli/anim.milli -w 50 -m match
+
+# 2. blank placeholder so fastfetch reserves the logo column
+python3 -c "print('\n'.join([' '*50]*18))" > ~/.config/fastfetch/blank-logo.txt
+```
+
+Save as `~/.local/bin/animfetch` and `chmod +x` it:
+
+```bash
+#!/usr/bin/env bash
+set -e
+clear
+fastfetch --logo ~/.config/fastfetch/blank-logo.txt --logo-type file-raw
+exec milli play ~/.config/milli/anim.milli --inline --at 3,2
+```
+
+`fastfetch` prints once and exits, leaving info on the right and an empty logo column on the left. `milli play --inline` then loops over that column without alt-screen or scroll. Ctrl+C exits and the cursor lands below the animation. Resize to fit your terminal — frames clip if smaller than baked dimensions.
 
 ## `.milli` format
 
