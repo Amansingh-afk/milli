@@ -4,8 +4,9 @@ Pixel-perfect animated ASCII art. Images, GIFs, video frames - in your terminal 
 
 ![demo](demo.gif)
 
-[npm](https://www.npmjs.com/package/@amansingh-afk/milli)
-[license](./LICENSE)
+[**🌐 try in browser →**](https://milli-five.vercel.app/) &nbsp;·&nbsp; [npm](https://www.npmjs.com/package/@amansingh-afk/milli) &nbsp;·&nbsp; [license](./LICENSE)
+
+> No install. Drop an image or GIF into the [web playground](https://milli-five.vercel.app/) and grab the ASCII / `.milli` / Go / Lua / JSON output instantly. Same engine as the CLI, all browser-side.
 
 ## Table of contents
 
@@ -40,6 +41,8 @@ Or one-shot without install:
 ```bash
 npx @amansingh-afk/milli image pic.png
 ```
+
+Prefer no install? Use the [**web playground**](https://milli-five.vercel.app/) – drag an image / GIF, get ASCII + every export format in your browser.
 
 Requires Node 18+ and a terminal with truecolor (`COLORTERM=truecolor`). Most modern terminals qualify.
 
