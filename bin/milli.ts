@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('milli')
   .description('Pixel-perfect ASCII art. Images now, video soon.')
-  .version('0.0.2');
+  .version('0.0.5');
 
 program
   .command('image <path>', { isDefault: true })
