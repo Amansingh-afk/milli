@@ -6,11 +6,17 @@ export interface PlayOptions {
   loop: boolean;
   stream?: NodeJS.WriteStream;
   cursorHome?: boolean;
+  // Paint in-place without entering alt-screen. Frames must be pre-rendered
+  // with absolute cursor positioning (use `cellsToAnsiPlaced`). On exit,
+  // cursor is moved to row `atY + height` so the next prompt sits below.
+  inline?: boolean;
+  atY?: number;
+  height?: number;
 }
 
 export async function play(opts: PlayOptions): Promise<void> {
   const stream = opts.stream ?? process.stdout;
-  const { frames, delays, loop } = opts;
+  const { frames, delays, loop, inline } = opts;
   if (frames.length === 0) return;
 
   let stopping = false;
@@ -18,7 +24,12 @@ export async function play(opts: PlayOptions): Promise<void> {
   const cleanup = () => {
     if (cleanedUp) return;
     cleanedUp = true;
-    stream.write(ANSI.reset + ANSI.showCursor + ANSI.altScreenExit);
+    if (inline) {
+      const exitY = (opts.atY ?? 1) + (opts.height ?? 0);
+      stream.write(ANSI.reset + ANSI.showCursor + `\x1b[${exitY};1H`);
+    } else {
+      stream.write(ANSI.reset + ANSI.showCursor + ANSI.altScreenExit);
+    }
   };
 
   const onSignal = () => {
@@ -31,10 +42,14 @@ export async function play(opts: PlayOptions): Promise<void> {
   process.on('SIGTERM', onSignal);
   process.on('exit', cleanup);
 
-  stream.write(ANSI.altScreenEnter + ANSI.hideCursor + ANSI.home);
+  if (inline) {
+    stream.write(ANSI.hideCursor);
+  } else {
+    stream.write(ANSI.altScreenEnter + ANSI.hideCursor + ANSI.home);
+  }
 
   try {
-    const prefix = opts.cursorHome === false ? '' : ANSI.home;
+    const prefix = inline ? '' : (opts.cursorHome === false ? '' : ANSI.home);
     do {
       for (let i = 0; i < frames.length; i++) {
         if (stopping) return;
