@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
+import { spawnSync } from 'node:child_process';
+import { existsSync, unlinkSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { decodeAnimation, decodeImage } from '../src/cli/decode.js';
 import { exportFromFile, type ExportTarget } from '../src/cli/export.js';
 import { fitGrid, frameToCells } from '../src/core/engine.js';
@@ -9,12 +14,24 @@ import { cellsToAnsi, cellsToAnsiPlaced } from '../src/render/ansi.js';
 import { play } from '../src/render/player.js';
 import type { CellGrid, EngineOptions, GlyphSet, RenderMode } from '../src/core/types.js';
 
+const HERE = dirname(fileURLToPath(import.meta.url));
+const SAMPLES_DIR = join(HERE, '..', '..', 'samples');
+
+function resolveMilliPath(input: string): string {
+  if (existsSync(input)) return input;
+  const bundled = join(SAMPLES_DIR, `${input}.milli`);
+  if (existsSync(bundled)) return bundled;
+  throw new Error(
+    `not found: "${input}" (no file at path, no bundled sample named "${input}"). Try one of: fire, jellyfish`,
+  );
+}
+
 const program = new Command();
 
 program
   .name('milli')
   .description('Pixel-perfect ASCII art. Images now, video soon.')
-  .version('0.0.5');
+  .version('0.0.6');
 
 program
   .command('image <path>', { isDefault: true })
@@ -59,6 +76,7 @@ program
   .option('-m, --mode <mode>', 'render mode: match|ramp|braille', 'match')
   .option('-s, --symbols <set>', 'glyph set (ramp mode)', 'ascii')
   .option('--no-color', 'monochrome')
+  .option('--no-bg', 'skip background color (transparent over terminal background)')
   .option('--no-loop', 'play once and exit')
   .option('--fps <n>', 'override fps', (v) => parseFloat(v))
   .option('--aspect <ratio>', 'char w/h ratio', (v) => parseFloat(v), 0.5)
@@ -76,6 +94,9 @@ program
       atX = parseInt(m[1]!, 10);
       atY = parseInt(m[2]!, 10);
     }
+
+    const isPath = path.includes('/') || path.includes('.');
+    if (!isPath) path = resolveMilliPath(path);
 
     if (path.endsWith('.milli')) {
       const buf = await readFile(path);
@@ -95,17 +116,18 @@ program
           clipH = Math.min(file.height, availH);
         }
       }
+      const bg = opts.bg !== false;
       const rendered = file.frames.map((_, i) => {
         const grid = frameToGrid(file, i);
         return opts.inline
           ? cellsToAnsiPlaced(grid, {
               color: opts.color,
-              background: true,
+              background: bg,
               termX: atX,
               termY: atY,
               region: { x: 0, y: 0, w: clipW, h: clipH },
             })
-          : cellsToAnsi(grid, { color: opts.color, background: true });
+          : cellsToAnsi(grid, { color: opts.color, background: bg });
       });
       const delays = opts.fps
         ? new Array(file.frames.length).fill(Math.round(1000 / opts.fps))
@@ -131,7 +153,7 @@ program
       invert: false,
       charAspect: opts.aspect,
     };
-    const bg = mode === 'match';
+    const bg = (mode === 'match') && (opts.bg !== false);
 
     let clipW = cols;
     let clipH = rows;
@@ -258,6 +280,86 @@ program
       `wrote ${result.files.length} file(s): ${result.frameCount} frames at ${result.cols}x${result.rows}\n`,
     );
     for (const f of result.files) process.stderr.write(`  ${f}\n`);
+  });
+
+program
+  .command('fastfetch <path>')
+  .description('Run fastfetch with an animated milli logo (composes static fastfetch info with looping animation)')
+  .option('--at <pos>', 'inline anchor as "x,y" 1-based terminal cell', '3,2')
+  .option('--no-bg', 'skip background color (transparent over terminal background)')
+  .option('--ff-args <args>', 'extra args passed to fastfetch (whitespace-split)', '')
+  .action(async (path: string, opts) => {
+    const isPath = path.includes('/') || path.includes('.');
+    if (!isPath) path = resolveMilliPath(path);
+
+    if (!path.endsWith('.milli')) {
+      process.stderr.write('milli fastfetch requires a .milli file. Bake one with: milli convert <input> <output.milli>\n');
+      process.exit(1);
+    }
+
+    const m = String(opts.at).match(/^(\d+),(\d+)$/);
+    if (!m) {
+      process.stderr.write('--at expects "x,y" (1-based, e.g. --at 3,2)\n');
+      process.exit(1);
+    }
+    const atX = parseInt(m[1]!, 10);
+    const atY = parseInt(m[2]!, 10);
+
+    const buf = await readFile(path);
+    const file = decodeMilli(buf);
+
+    const tmpPath = join(tmpdir(), `milli-fastfetch-${process.pid}-${Date.now()}.txt`);
+    const blank = (' '.repeat(file.width) + '\n').repeat(file.height);
+    await writeFile(tmpPath, blank);
+
+    const cleanupTmp = () => {
+      try { unlinkSync(tmpPath); } catch {}
+    };
+    process.on('exit', cleanupTmp);
+    process.on('SIGINT', () => { cleanupTmp(); process.exit(0); });
+    process.on('SIGTERM', () => { cleanupTmp(); process.exit(0); });
+
+    process.stdout.write('\x1b[2J\x1b[H');
+    const ffArgs = ['--logo', tmpPath, '--logo-type', 'file-raw'];
+    if (opts.ffArgs) ffArgs.push(...String(opts.ffArgs).split(/\s+/).filter(Boolean));
+    const result = spawnSync('fastfetch', ffArgs, { stdio: 'inherit' });
+    if (result.error) {
+      const err = result.error as NodeJS.ErrnoException;
+      if (err.code === 'ENOENT') {
+        process.stderr.write('fastfetch not found on PATH. Install fastfetch first: https://github.com/fastfetch-cli/fastfetch\n');
+      } else {
+        process.stderr.write(`fastfetch failed: ${err.message}\n`);
+      }
+      process.exit(1);
+    }
+
+    const termCols = process.stdout.columns ?? 0;
+    const termRows = process.stdout.rows ?? 0;
+    let clipW = file.width;
+    let clipH = file.height;
+    if (termCols && termRows) {
+      const availW = Math.max(1, termCols - atX + 1);
+      const availH = Math.max(1, termRows - atY + 1);
+      if (file.width > availW || file.height > availH) {
+        process.stderr.write(`warning: animation ${file.width}x${file.height} larger than available ${availW}x${availH} from (${atX},${atY}); clipping\n`);
+      }
+      clipW = Math.min(file.width, availW);
+      clipH = Math.min(file.height, availH);
+    }
+
+    const bg = opts.bg !== false;
+    const rendered = file.frames.map((_, i) => {
+      const grid = frameToGrid(file, i);
+      return cellsToAnsiPlaced(grid, {
+        color: true,
+        background: bg,
+        termX: atX,
+        termY: atY,
+        region: { x: 0, y: 0, w: clipW, h: clipH },
+      });
+    });
+    const delays = file.frames.map((f) => f.delay);
+    await play({ frames: rendered, delays, loop: file.loop, inline: true, atY, height: clipH });
   });
 
 program.parseAsync().catch((err) => {

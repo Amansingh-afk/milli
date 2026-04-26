@@ -6,6 +6,7 @@ Full command reference for the `milli` CLI. For setup recipes (Neovim splash, te
 - [milli play](#milli-play)
 - [milli convert](#milli-convert)
 - [milli export](#milli-export)
+- [milli fastfetch](#milli-fastfetch)
 - [Render modes](#render-modes)
 - [Export targets](#export-targets)
 
@@ -140,6 +141,53 @@ milli export anim.gif ./out -t lua -w 60 --no-bg
 # JSON: frames.json with full { glyph, fg, bg } grid per frame
 milli export anim.gif ./out -t json -w 50
 ```
+
+## `milli fastfetch`
+
+Run `fastfetch` with an animated `.milli` logo. Wraps the `--inline` paint trick into a single command — no shell wrapper, no manually-sized blank-logo file.
+
+```bash
+milli fastfetch <path.milli> [options]
+```
+
+**Options:**
+
+| Flag                  | Default | Description                                                       |
+| --------------------- | ------- | ----------------------------------------------------------------- |
+| `--at <pos>`          | `3,2`   | Inline anchor as `x,y` (1-based). Match your fastfetch logo padding. |
+| `--ff-args <args>`    | -       | Extra args passed through to `fastfetch` (whitespace-split).      |
+
+**What it does:**
+
+1. Reads the `.milli` header → derives the logo column dimensions (cols × rows).
+2. Writes a blank-spaces placeholder file to `$TMPDIR` so `fastfetch` reserves the logo column.
+3. Spawns `fastfetch --logo <tmp> --logo-type file-raw [your --ff-args]`. Fastfetch prints info on the right and exits.
+4. Loops the animation in the reserved column via inline play (no alt-screen). Ctrl+C exits and the cursor lands below.
+
+**Examples:**
+
+```bash
+# bake once, then run
+milli convert clip.gif ~/.config/milli/anim.milli -w 50 -m match
+milli fastfetch ~/.config/milli/anim.milli
+
+# pass a custom fastfetch config
+milli fastfetch ~/.config/milli/anim.milli --ff-args "--config minimal.jsonc"
+
+# tweak inline anchor (default 3,2 matches padding top:1 left:2)
+milli fastfetch ~/.config/milli/anim.milli --at 4,3
+```
+
+**Make it your default fastfetch:**
+
+```bash
+# ~/.zshrc / ~/.bashrc
+alias fastfetch='milli fastfetch ~/.config/milli/anim.milli'
+```
+
+Use `command fastfetch` (or `\fastfetch`) when you want the real one-shot fastfetch.
+
+Requires `fastfetch` on `$PATH` — install from [fastfetch-cli/fastfetch](https://github.com/fastfetch-cli/fastfetch).
 
 ## Render modes
 
