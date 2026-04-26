@@ -8,7 +8,7 @@ Real-world places to drop milli output. Examples are minimal — swap the splash
 - [tmux pane decoration](#tmux-pane-decoration)
 - [React / web embed](#react--web-embed)
 - [Bubbletea TUI splash](#bubbletea-tui-splash)
-- [Static logo for neofetch / fastfetch](#static-logo-for-neofetch--fastfetch)
+- [Static logo for fastfetch](#static-logo-for-fastfetch)
 - [Animated logo for fastfetch](#animated-logo-for-fastfetch)
 
 ## Neovim dashboard splash
@@ -197,9 +197,9 @@ func (m Model) View() string {
 
 The generated `splash.go` ships `Tick`, `Render`, `TickMsg`, `DoneMsg` — no extra dependency on milli at runtime.
 
-## Static logo for neofetch / fastfetch
+## Static logo for fastfetch
 
-neofetch / fastfetch print their logo once and exit. A single rendered frame as the logo works fine; for animation see the [next recipe](#animated-logo-for-fastfetch).
+A single rendered frame as the fastfetch logo. For animation, see [the next recipe](#animated-logo-for-fastfetch).
 
 ```bash
 # render any image as a colored ASCII logo (40 cols is a good fastfetch fit)
@@ -208,9 +208,7 @@ milli image logo.png -w 40 -m match > ~/.config/fastfetch/logo.txt
 
 `match` mode preserves source colors per cell (best for logos with brand colors). For a flatter look, use `-m ramp` (luminance to ASCII chars, no per-cell bg).
 
-### fastfetch
-
-Replace the default distro logo. In `~/.config/fastfetch/config.jsonc`, swap your existing `"logo"` block (typically `"type": "auto"`) with:
+In `~/.config/fastfetch/config.jsonc`, swap your existing `"logo"` block (typically `"type": "auto"`) with:
 
 ```jsonc
 "logo": {
@@ -226,47 +224,45 @@ Replace the default distro logo. In `~/.config/fastfetch/config.jsonc`, swap you
 fastfetch --logo ~/.config/fastfetch/logo.txt --logo-type file-raw
 ```
 
-### neofetch
-
-In `~/.config/neofetch/config.conf`:
-
-```bash
-ascii_distro="off"
-image_backend="ascii"
-image_source="~/.config/fastfetch/logo.txt"
-```
-
-neofetch reads the file as-is but its layout assumes a fixed-width box. If colors look broken, drop to mono with `milli image logo.png -w 40 -m braille --no-color`.
-
 ## Animated logo for fastfetch
 
-A tiny wrapper composes static fastfetch info with a looping milli animation in the logo region. Uses `milli play --inline` (added in 0.0.5) to paint over a fastfetch-reserved column without alt-screen.
+`milli fastfetch` (added in 0.0.6) composes static fastfetch info with a looping milli animation in the logo region. One command, no shell wrapper, no manually-sized blank-logo file.
+
+![fastfetch-jellyfish](https://raw.githubusercontent.com/Amansingh-afk/milli/media/fastfetch-jellyfish.gif)
+
+Try it instantly with the bundled samples (`fire` and `jellyfish` ship with the npm package):
+
+```bash
+milli fastfetch jellyfish
+milli fastfetch fire
+```
+
+![fastfetch-fire](https://raw.githubusercontent.com/Amansingh-afk/milli/media/fastfetch-fire.gif)
+
+Use your own animation by baking a `.milli` first:
 
 ```bash
 # 1. bake a small .milli (50 cols × 18 rows is a good size)
 milli convert clip.gif ~/.config/milli/anim.milli -w 50 -m match
 
-# 2. blank placeholder so fastfetch reserves the logo column
-python3 -c "print('\n'.join([' '*50]*18))" > ~/.config/fastfetch/blank-logo.txt
+# 2. run
+milli fastfetch ~/.config/milli/anim.milli
 ```
 
-Save as `~/.local/bin/animfetch` and `chmod +x` it:
+Fastfetch prints info on the right and exits. milli loops the animation in the reserved logo column via inline paint (no alt-screen, no scroll). Ctrl+C exits and the cursor lands below.
 
-```bash
-#!/usr/bin/env bash
-set -e
-clear
-fastfetch --logo ~/.config/fastfetch/blank-logo.txt --logo-type file-raw
-exec milli play ~/.config/milli/anim.milli --inline --at 3,2
-```
-
-`fastfetch` prints once and exits, leaving info on the right and an empty logo column on the left. `milli play --inline` then loops over that column without alt-screen or scroll. Ctrl+C exits and the cursor lands below the animation. Resize to fit your terminal — frames clip if smaller than baked dimensions.
-
-Run with `animfetch`. To make it your default, alias in your shell rc:
+To make it your default fastfetch, alias in your shell rc:
 
 ```bash
 # ~/.zshrc / ~/.bashrc
-alias fastfetch=animfetch
+alias fastfetch='milli fastfetch ~/.config/milli/anim.milli'
 ```
 
-Use `command fastfetch` (or `\fastfetch`) when you want the real one-shot fastfetch instead of the animated wrapper.
+Use `command fastfetch` (or `\fastfetch`) when you want the real one-shot fastfetch.
+
+**Optional flags:**
+
+- `--at x,y` — inline anchor (default `3,2`, matches fastfetch padding `top:1 left:2`)
+- `--ff-args "..."` — passthrough to fastfetch, e.g. `--ff-args "--config minimal.jsonc"`
+
+Resize your terminal to fit — frames clip with a stderr warning if smaller than baked dimensions.

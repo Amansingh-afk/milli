@@ -28,6 +28,10 @@ Requires Node 18+ and a terminal with truecolor (`COLORTERM=truecolor`). Most mo
 ## Quick start
 
 ```bash
+# zero-friction: bundled samples ship with the npm package
+milli play fire
+milli fastfetch jellyfish        # animated logo + fastfetch info, single command
+
 # render any image to ASCII
 milli image pic.png
 
@@ -44,6 +48,10 @@ milli export anim.gif ./out -t lua -w 60 --no-bg
 # export frames as Go for Bubbletea splashes
 milli export anim.gif ./out -t go -p bootsplash -w 50
 ```
+
+`milli fastfetch jellyfish` — bundled animation in fastfetch's logo column, info on the right:
+
+![fastfetch-jellyfish](https://raw.githubusercontent.com/Amansingh-afk/milli/media/fastfetch-jellyfish.gif)
 
 ## Documentation
 
