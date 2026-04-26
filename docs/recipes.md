@@ -233,8 +233,9 @@ fastfetch --logo ~/.config/fastfetch/logo.txt --logo-type file-raw
 Try it instantly with the bundled samples (`fire` and `jellyfish` ship with the npm package):
 
 ```bash
-milli fastfetch jellyfish
-milli fastfetch fire
+# --no-bg makes look animation cleaner. you can skip it if you want. 
+milli fastfetch jellyfish --no-bg
+milli fastfetch fire --no-bg
 ```
 
 ![fastfetch-fire](https://raw.githubusercontent.com/Amansingh-afk/milli/media/fastfetch-fire.gif)

@@ -30,7 +30,7 @@ Requires Node 18+ and a terminal with truecolor (`COLORTERM=truecolor`). Most mo
 ```bash
 # zero-friction: bundled samples ship with the npm package
 milli play fire
-milli fastfetch jellyfish        # animated logo + fastfetch info, single command
+milli fastfetch jellyfish --no-bg        # animated logo + fastfetch info, single command
 
 # render any image to ASCII
 milli image pic.png
