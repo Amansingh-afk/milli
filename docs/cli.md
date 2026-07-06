@@ -189,6 +189,89 @@ Use `command fastfetch` (or `\fastfetch`) when you want the real one-shot fastfe
 
 Requires `fastfetch` on `$PATH` — install from [fastfetch-cli/fastfetch](https://github.com/fastfetch-cli/fastfetch).
 
+## `milli text`
+
+Animate any text with a procedural effect. No source image — frames are computed from a built-in block font, so it works offline, loops forever live, and bakes to any export target.
+
+```bash
+milli text <string> [options]
+```
+
+**Options:**
+
+| Flag                   | Default   | Description                                                          |
+| ---------------------- | --------- | -------------------------------------------------------------------- |
+| `-e, --effect <name>`  | `fire`    | `fire` / `glitch` / `wave` / `matrix` / `dissolve` / `typewriter` / `pulse` / `rainbow` |
+| `-c, --color <hex>`    | `#00ffbe` | Base color (effects that take one: glitch, dissolve, typewriter, pulse) |
+| `--fps <n>`            | `30`      | Frame rate                                                            |
+| `--scale <n>`          | `2`       | Horizontal cells per font pixel (vertical is half; bigger = larger text) |
+| `--seed <n>`           | `1337`    | Random seed — same seed, same animation                               |
+| `--seconds <n>`        | forever   | Stop live playback after n seconds                                    |
+| `-o, --export <outdir>`| -         | Bake frames to files instead of playing                               |
+| `-t, --target <t>`     | `lua`     | Export target: `lua` / `go` / `json` / `milli`                        |
+| `--frames <n>`         | one loop  | Baked frame count (default: the effect's clean loop period)           |
+| `-p, --package <name>` | slug      | Go package name (go target)                                           |
+
+**Examples:**
+
+```bash
+# flaming text in your terminal, right now
+milli text "MILLI" -e fire
+
+# glitchy banner, custom color
+milli text "SYSTEM ONLINE" -e glitch -c "#ff0044"
+
+# bake a matrix-rain reveal of your name for your nvim dashboard
+milli text "NEOVIM" -e matrix -o ./out -t lua
+cp ./out/neovim-matrix.lua ~/.config/nvim/lua/milli/splashes/myname.lua
+
+# ship a .milli for fastfetch / play
+milli text "YOLO" -e wave -o ./out -t milli
+milli play ./out/yolo-wave.milli
+```
+
+Effect cheat sheet: `fire` burns the letters (DOOM-style heat sim), `glitch` does RGB channel-split + row tearing, `wave` ripples with a hue sweep, `matrix` reveals the text behind falling rain, `dissolve` blows letters into particles and reassembles, `typewriter` types with a blinking cursor, `pulse` breathes with a neon glow halo, `rainbow` scrolls a gradient.
+
+## `milli shader`
+
+Run a real-time procedural shader in the terminal. Pure math — no assets, never repeats, fills whatever size you give it.
+
+```bash
+milli shader <name> [options]
+```
+
+Shaders: `plasma`, `rain` (matrix rain), `doomfire`, `starfield`, `tunnel`, `waves`.
+
+**Options:**
+
+| Flag                   | Default       | Description                                            |
+| ---------------------- | ------------- | ------------------------------------------------------- |
+| `-w, --width <cols>`   | terminal      | Columns                                                 |
+| `-h, --height <rows>`  | terminal      | Rows                                                    |
+| `--fps <n>`            | `30`          | Frame rate                                              |
+| `--hue <deg>`          | per-shader    | Base hue 0-360 (recolor rain, plasma, tunnel, waves, starfield) |
+| `--seed <n>`           | `1337`        | Random seed                                             |
+| `--seconds <n>`        | forever       | Stop after n seconds (screensaver-with-timeout)         |
+| `-o, --export <outdir>`| -             | Bake frames instead of playing                          |
+| `-t, --target <t>`     | `lua`         | `lua` / `go` / `json` / `milli`                         |
+| `--frames <n>`         | loop period   | Baked frame count                                       |
+
+**Examples:**
+
+```bash
+# fullscreen matrix rain — instant screensaver
+milli shader rain
+
+# purple plasma, 10-second burst
+milli shader plasma --hue 280 --seconds 10
+
+# bake DOOM fire into a .milli for fastfetch
+milli shader doomfire -w 50 -h 14 -o ./out -t milli
+milli fastfetch ./out/doomfire.milli
+```
+
+> milli.nvim ships native Lua ports of `plasma`, `rain`, `doomfire`, and `starfield` — those run live inside Neovim with zero baked frames (`:MilliShader rain`). Baking is for the other targets or fixed-size loops.
+
 ## Render modes
 
 | Mode      | What it does                                                                                                                                                                                                  | Best for                                           |

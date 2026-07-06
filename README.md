@@ -32,6 +32,14 @@ Requires Node 18+ and a terminal with truecolor (`COLORTERM=truecolor`). Most mo
 milli play fire
 milli fastfetch jellyfish --no-bg        # animated logo + fastfetch info, single command
 
+# animate ANY text — no image needed (fire|glitch|wave|matrix|dissolve|typewriter|pulse|rainbow)
+milli text "MILLI" -e fire
+milli text "SYSTEM ONLINE" -e glitch -c "#ff0044"
+
+# real-time procedural shaders (plasma|rain|doomfire|starfield|tunnel|waves)
+milli shader rain                        # fullscreen matrix rain, Ctrl+C to exit
+milli shader plasma --hue 280
+
 # render any image to ASCII
 milli image pic.png
 
@@ -47,6 +55,10 @@ milli export anim.gif ./out -t lua -w 60 --no-bg
 
 # export frames as Go for Bubbletea splashes
 milli export anim.gif ./out -t go -p bootsplash -w 50
+
+# bake a text effect or shader for any target (lua/go/json/.milli)
+milli text "NEOVIM" -e matrix -o ./out -t lua
+milli shader doomfire -w 50 -h 14 -o ./out -t milli
 ```
 
 `milli fastfetch jellyfish` — bundled animation in fastfetch's logo column, info on the right:
@@ -66,6 +78,7 @@ milli export anim.gif ./out -t go -p bootsplash -w 50
 
 [chafa](https://hpjansson.org/chafa/) is the quality floor for "image → terminal." milli adds:
 
+- **Procedural generation** — `milli text` (8 text effects) and `milli shader` (6 live shaders) create animation from nothing; chafa needs an input image
 - **Pre-baked format** — `.milli` for instant playback, ship with your app
 - **Source export** — Go / Lua / JSON for embedding (chafa is a binary)
 - **Programmatic API** — use as a Node library

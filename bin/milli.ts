@@ -6,13 +6,18 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mkdir } from 'node:fs/promises';
 import { decodeAnimation, decodeImage } from '../src/cli/decode.js';
 import { exportFromFile, type ExportTarget } from '../src/cli/export.js';
+import { emitGoData, emitJson, emitLuaData } from '../src/core/emit.js';
 import { fitGrid, frameToCells } from '../src/core/engine.js';
 import { decodeMilli, encodeMilli, frameToGrid } from '../src/core/format.js';
+import { createTextFx, FX_NAMES, type FxName } from '../src/core/fx.js';
+import { createShader, SHADER_NAMES, type ShaderName } from '../src/core/shader.js';
 import { cellsToAnsi, cellsToAnsiPlaced } from '../src/render/ansi.js';
+import { playLive } from '../src/render/live.js';
 import { play } from '../src/render/player.js';
-import type { CellGrid, EngineOptions, GlyphSet, RenderMode } from '../src/core/types.js';
+import type { CellGrid, EngineOptions, GlyphSet, RenderMode, RGB } from '../src/core/types.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SAMPLES_DIR = join(HERE, '..', '..', 'samples');
@@ -360,6 +365,140 @@ program
     });
     const delays = file.frames.map((f) => f.delay);
     await play({ frames: rendered, delays, loop: file.loop, inline: true, atY, height: clipH });
+  });
+
+function parseHexColor(s: string): RGB {
+  const m = s.replace(/^#/, '').match(/^([0-9a-f]{6})$/i);
+  if (!m) throw new Error(`bad color: "${s}" (want hex like #00ffbe)`);
+  const n = parseInt(m[1]!, 16);
+  return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff];
+}
+
+interface Bakeable {
+  cols: number;
+  rows: number;
+  period: number;
+  frame(i: number): CellGrid;
+}
+
+// Bake a procedural generator into files. Target 'milli' writes a single
+// .milli file; go/lua/json reuse the standard emitters.
+async function bakeProcedural(
+  gen: Bakeable,
+  outDir: string,
+  target: string,
+  fps: number,
+  frameCount: number | undefined,
+  slug: string,
+  pkg: string | undefined,
+): Promise<void> {
+  const n = frameCount ?? gen.period;
+  const grids: CellGrid[] = [];
+  for (let i = 0; i < n; i++) grids.push(gen.frame(i));
+  const delays = new Array<number>(n).fill(Math.round(1000 / fps));
+
+  await mkdir(outDir, { recursive: true });
+  const files: string[] = [];
+  // Procedural output is drawn on pure black; drop those backgrounds so
+  // exports sit transparently on dashboards/terminals.
+  const threshold = 0.01;
+  switch (target) {
+    case 'lua': {
+      const p = join(outDir, `${slug}.lua`);
+      await writeFile(p, emitLuaData(grids, delays, gen.cols, gen.rows, true, threshold));
+      files.push(p);
+      break;
+    }
+    case 'go': {
+      const p = join(outDir, 'frames.go');
+      await writeFile(p, emitGoData(grids, delays, gen.cols, gen.rows, pkg ?? slug, threshold));
+      files.push(p);
+      break;
+    }
+    case 'json': {
+      const p = join(outDir, `${slug}.json`);
+      await writeFile(p, emitJson(grids, delays, gen.cols, gen.rows));
+      files.push(p);
+      break;
+    }
+    case 'milli': {
+      const p = join(outDir, `${slug}.milli`);
+      await writeFile(p, encodeMilli(grids, delays, true));
+      files.push(p);
+      break;
+    }
+    default:
+      throw new Error(`unknown target: ${target} (want lua|go|json|milli)`);
+  }
+  process.stderr.write(`wrote ${n} frames at ${gen.cols}x${gen.rows}:\n`);
+  for (const f of files) process.stderr.write(`  ${f}\n`);
+}
+
+program
+  .command('text <string>')
+  .description(`Animate text with a procedural effect (${FX_NAMES.join('|')})`)
+  .option('-e, --effect <name>', `effect: ${FX_NAMES.join('|')}`, 'fire')
+  .option('-c, --color <hex>', 'base color for color-taking effects', '#00ffbe')
+  .option('--fps <n>', 'frames per second', (v) => parseInt(v, 10), 30)
+  .option('--scale <n>', 'horizontal cells per font pixel (vertical is half)', (v) => parseInt(v, 10), 2)
+  .option('--seed <n>', 'random seed (exports are reproducible)', (v) => parseInt(v, 10), 1337)
+  .option('--seconds <n>', 'stop live playback after n seconds', (v) => parseFloat(v))
+  .option('-o, --export <outdir>', 'bake frames to files instead of playing')
+  .option('-t, --target <target>', 'export target: lua|go|json|milli', 'lua')
+  .option('-p, --package <name>', 'Go package name (go target)')
+  .option('--frames <n>', 'baked frame count (default: one clean loop)', (v) => parseInt(v, 10))
+  .action(async (text: string, opts) => {
+    const effect = opts.effect as FxName;
+    if (!FX_NAMES.includes(effect)) {
+      throw new Error(`unknown effect: ${opts.effect} (want ${FX_NAMES.join('|')})`);
+    }
+    const scaleX = Math.max(1, opts.scale);
+    const fx = createTextFx(text, effect, {
+      color: parseHexColor(opts.color),
+      fps: opts.fps,
+      seed: opts.seed,
+      mask: { scaleX, scaleY: Math.max(1, Math.round(scaleX / 2)) },
+    });
+    if (opts.export) {
+      const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 24) || 'text';
+      await bakeProcedural(fx, opts.export, opts.target, opts.fps, opts.frames, `${slug}-${effect}`, opts.package);
+      return;
+    }
+    await playLive({ frame: (i) => fx.frame(i), fps: opts.fps, seconds: opts.seconds });
+  });
+
+program
+  .command('shader <name>')
+  .description(`Run a live procedural shader (${SHADER_NAMES.join('|')})`)
+  .option('-w, --width <cols>', 'columns (default: terminal width)', (v) => parseInt(v, 10))
+  .option('-h, --height <rows>', 'rows (default: terminal height)', (v) => parseInt(v, 10))
+  .option('--fps <n>', 'frames per second', (v) => parseInt(v, 10), 30)
+  .option('--seed <n>', 'random seed', (v) => parseInt(v, 10), 1337)
+  .option('--hue <deg>', 'base hue 0-360 (rain/starfield/tunnel/waves/plasma)', (v) => parseFloat(v))
+  .option('--seconds <n>', 'stop live playback after n seconds', (v) => parseFloat(v))
+  .option('-o, --export <outdir>', 'bake frames to files instead of playing')
+  .option('-t, --target <target>', 'export target: lua|go|json|milli', 'lua')
+  .option('-p, --package <name>', 'Go package name (go target)')
+  .option('--frames <n>', 'baked frame count (default: one loop period)', (v) => parseInt(v, 10))
+  .action(async (name: string, opts) => {
+    const shaderName = name as ShaderName;
+    if (!SHADER_NAMES.includes(shaderName)) {
+      throw new Error(`unknown shader: ${name} (want ${SHADER_NAMES.join('|')})`);
+    }
+    const cols = opts.width ?? process.stdout.columns ?? 80;
+    const rows = opts.height ?? (process.stdout.rows ? process.stdout.rows - 1 : 24);
+    const sh = createShader(shaderName, {
+      cols,
+      rows,
+      fps: opts.fps,
+      seed: opts.seed,
+      hue: typeof opts.hue === 'number' && !Number.isNaN(opts.hue) ? (opts.hue % 360) / 360 : undefined,
+    });
+    if (opts.export) {
+      await bakeProcedural(sh, opts.export, opts.target, opts.fps, opts.frames, shaderName, opts.package);
+      return;
+    }
+    await playLive({ frame: (i) => sh.frame(i), fps: opts.fps, seconds: opts.seconds });
   });
 
 program.parseAsync().catch((err) => {
