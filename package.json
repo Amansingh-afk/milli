@@ -1,6 +1,6 @@
 {
   "name": "@amansingh-afk/milli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pixel-perfect animated ASCII art engine. Images, GIFs, video → terminal, browser, or embedded (Go/Lua/JSON). CLI + web playground.",
   "type": "module",
   "bin": {
