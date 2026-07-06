@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { spawnSync } from 'node:child_process';
-import { existsSync, unlinkSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -20,7 +20,9 @@ import { play } from '../src/render/player.js';
 import type { CellGrid, EngineOptions, GlyphSet, RenderMode, RGB } from '../src/core/types.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const SAMPLES_DIR = join(HERE, '..', '..', 'samples');
+const PKG_ROOT = existsSync(join(HERE, '..', '..', 'package.json')) ? join(HERE, '..', '..') : join(HERE, '..');
+const SAMPLES_DIR = join(PKG_ROOT, 'samples');
+const VERSION = JSON.parse(readFileSync(join(PKG_ROOT, 'package.json'), 'utf8')).version as string;
 
 function resolveMilliPath(input: string): string {
   if (existsSync(input)) return input;
@@ -36,7 +38,7 @@ const program = new Command();
 program
   .name('milli')
   .description('Pixel-perfect ASCII art. Images now, video soon.')
-  .version('0.0.6');
+  .version(VERSION);
 
 program
   .command('image <path>', { isDefault: true })
