@@ -1,7 +1,8 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, resolve } from 'node:path';
 import type { CellGrid, GlyphSet, RenderMode } from '../core/types.js';
 import { fitGrid, frameToCells } from '../core/engine.js';
+import { decodeMilli, frameToGrid } from '../core/format.js';
 import {
   emitGoData,
   emitGoHelper,
@@ -38,6 +39,13 @@ export async function exportFromFile(
   outDir: string,
   opts: ExportOptions,
 ): Promise<ExportResult> {
+  if (/\.milli$/i.test(inPath)) {
+    const file = decodeMilli(await readFile(inPath));
+    const grids = file.frames.map((_, i) => frameToGrid(file, i));
+    const delays = file.frames.map((f) => f.delay);
+    return emitAll(grids, delays, file.width, file.height, outDir, opts);
+  }
+
   const isAnim = /\.(gif|webp|apng)$/i.test(inPath);
 
   let frames, delays: number[];
@@ -69,6 +77,17 @@ export async function exportFromFile(
     }),
   );
 
+  return emitAll(grids, delays, cols, rows, outDir, opts);
+}
+
+async function emitAll(
+  grids: CellGrid[],
+  delays: number[],
+  cols: number,
+  rows: number,
+  outDir: string,
+  opts: ExportOptions,
+): Promise<ExportResult> {
   await mkdir(outDir, { recursive: true });
   const files: string[] = [];
   const threshold = opts.backgroundThreshold;
